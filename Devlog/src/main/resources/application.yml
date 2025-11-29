@@ -1,0 +1,31 @@
+spring :
+   application :
+      name : Devlog 
+   jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    
+   elasticsearch :
+      uris: http://localhost:9200 # 연결할 Elasticsearch 주소
+   jackson:
+      property-naming-strategy: SNAKE_CASE
+   
+   mail : 
+      host : smtp.gmail.com
+      port : 587
+      username : kyusik0207@gmail.com
+      password : jifuncjeeuzapznk
+      properties : 
+         mail : 
+            smtp : 
+               auth : true
+               starttls : 
+                  enable : true
+   config :
+      import : config.properties 
+      
+logging:
+  level:
+     org.elasticsearch.client : TRACE # Elasticsearch 쿼리 로그 출력 
+     edu.og.es.common.filter.LoggingFilter : Trace # 필터 로그     
