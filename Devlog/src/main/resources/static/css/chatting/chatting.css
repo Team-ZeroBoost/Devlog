@@ -64,6 +64,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .right {flex : 7}
 
 
+
 #chatting-room-list {
     /* border: 1px solid black; */
     border-right: 1px solid #F7E8F6;;
@@ -78,6 +79,7 @@ input[type="search"]::-webkit-search-cancel-button {
     padding-top: 20px;
     justify-content: space-evenly;
     align-items: center;
+    position: relative;
 }
 
 /* 채팅방 상단 검색창 */
@@ -92,7 +94,7 @@ input[type="search"]::-webkit-search-cancel-button {
     
 }
 
-#chatting-search-area:focus, #send-message:focus {
+#chatting-search-area:focus, #send-message:focus, #edit-message:focus, #search-memberName:focus {
     outline: none;
     border-color: #E5B0EA;
     
@@ -184,11 +186,82 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 
+/* 채팅방 생성 */
+.create-room {
+    position: absolute;
+    width: 90%;
+    top: 90px;
+    z-index: 100;
+    border: 1px solid #F1C6E7;
+    border-radius: 10px;
+    background-color: white;
+    padding-left: 10px;
+}
+
+.chat-type > div {
+    width: 80%;
+    justify-content: space-between;
+}
+
+.chat-type img {
+    width: 20px;
+    height: 20px;
+}
+
+.private, .group {
+    width: 100px;
+    height: 50px;
+    border: 1px solid #E0CAFF;
+    border-radius: 10px;
+    
+}
+
+.type-select {
+    background-color: #BD83CE;
+    color : white
+}
+
+input[name="memberName"] {
+    border-radius: 10px;
+    border: 1px solid #8C8C8C;
+    width: 80%;
+    padding-left: 10px;
+    
+
+}
+
+.follow-list {
+    list-style: none;
+    width: 80%;
+    height: 250px;
+    border: 1px solid #868686;
+    border-radius: 15px;
+    padding-left: 0;
+    padding-top: 5px;
+
+    overflow-y: auto;
+    
+
+
+}
+
+
+.follow-item {
+    justify-content: space-around;
+}
+
+.follow-item > div {
+    align-items: center;
+}
+/* -------------------------------------------------------------------- */
+
+
 .chatting-area {
     height: 100%;
 }
 
 
+/* 채팅창 info */
 .chat-info {
     height: 70px;
     justify-content: space-between;
@@ -196,6 +269,7 @@ input[type="search"]::-webkit-search-cancel-button {
     border-bottom: 1px solid #F7E8F6;
 }
 
+/* 그룹 프로필 */
 .group-profile {
     width: 60px;
     position: relative;
@@ -235,13 +309,104 @@ input[type="search"]::-webkit-search-cancel-button {
     cursor: pointer;
 }
 
-
+/* 메세지 영역 */
 .message-list {
     /* border: 1px solid black; */
-    height: calc(100vh - 64px - 70px - 80px);
+    height: calc(100vh - 64px - 70px - 130px);
     overflow-y: auto;
 }
 
+
+
+.message-list {
+    list-style: none;
+    width: 100%;
+    
+}
+
+
+
+/* 다른사람 메세지 */
+.message-item.other {
+    justify-content: flex-start;
+}
+.other .bubble {
+    display: inline-block;  
+    min-width: 48px; 
+    max-width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.message-item.other>div> span:last-child {
+    width: 100%;
+    text-align: end;
+}
+
+.other .unread-people{
+    position: absolute;
+    bottom: 30px;
+    right: -20px;
+}
+
+
+/* 내 메세지 */
+.message-item.my {
+    justify-content: flex-end;
+    margin-right: 20px;
+}
+.my .bubble {
+    display: inline-block;  
+    min-width: 48px; 
+    max-width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+    background-color: #F1C6E7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    
+}
+.my .unread-people {
+    position: absolute;
+    bottom: 30px;
+    left: -20px;
+}
+
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #F7E8F6;
+    border-radius: 50%;
+}
+
+.bubble.image {
+    padding: 0;                 
+    background-color: transparent;
+    border-radius: 12px;
+    overflow: hidden;           
+}
+
+.bubble.image img {
+    display: block;
+    max-width: 260px;          
+    max-height: 260px;
+    object-fit: cover;
+}
+.message-content{
+    align-items: flex-start;
+    display: inline-flex; 
+    max-width: 50%; 
+    position: relative;
+}
+
+/* 메세지 전송 */
 .send-area {
     justify-content: space-evenly;
 }
@@ -266,89 +431,59 @@ input[type="search"]::-webkit-search-cancel-button {
     overflow-y: hidden; 
 }
 
-.message-list {
-    list-style: none;
-    width: 100%;
-    
-}
+/* 메세지 수정 */
 
-
-.message-item.my {
-    justify-content: flex-end;
-    margin-right: 20px;
-}
-
-.message-item.other {
-    justify-content: flex-start;
-}
-
-.message-content{
-    align-items: flex-start;
-    display: inline-flex; 
-    max-width: 50%; 
+.message-edit{
+    width: 300px;
+    height: 40px;
+    border: 1px solid #E5B0EA;
+    background-color: #E0CAFF;
+    border-radius: 15px;
     position: relative;
+    align-items: center;
+    padding-left: 5px;
+
 }
 
-.other .bubble {
-    display: inline-block;  
-    min-width: 48px; 
-    max-width: 100%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    line-height: 1.4;
-    word-break: break-word;
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-.my .bubble {
-    display: inline-block;  
-    min-width: 48px; 
-    max-width: 100%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    line-height: 1.4;
-    word-break: break-word;
-    background-color: #F1C6E7;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    
-}
-
-.message-item.other>div> span:last-child {
-    width: 100%;
-    text-align: end;
-}
-
-.other .unread-people{
+.message-edit>span:last-child{
     position: absolute;
-    bottom: 30px;
-    right: -20px;
+
+    right: 10px;
 }
 
-.my .unread-people {
-    position: absolute;
-    bottom: 30px;
-    left: -20px;
-}
-
-.profile-img {
+#edit-btn {
     width: 40px;
     height: 40px;
-    border: 1px solid #F7E8F6;
-    border-radius: 50%;
 }
 
-.bubble.image {
-    padding: 0;                 
-    background-color: transparent;
-    border-radius: 12px;
-    overflow: hidden;           
+.edit-area>div:first-child {
+    width: 80%;
 }
 
-.bubble.image img {
-    display: block;
-    max-width: 260px;          
-    max-height: 260px;
-    object-fit: cover;
+#edit-message {
+    width: 100%;
+    min-height: 40px;
+    resize: none;
+    border-radius: 10px;
+    border: 1px solid #868686;
+    padding: 10px;
+    line-height: 1.4;
+    overflow-y: hidden; 
 }
+
+.edit-area {
+    align-items: end;
+    padding-left: 35px;
+}
+
+#edit-cancle-btn:hover {
+    cursor: pointer;
+
+}
+
+/* 메세지 입력창 전환 용도 */
+.display-none {
+
+    display: none;
+}
+

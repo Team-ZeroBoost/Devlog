@@ -20,6 +20,101 @@
             <div class="room-list-header flex">
                 <input type="search" id="chatting-search-area" placeholder="Search">
                 <img id="chat-add-btn" src="../../static/images/chatting/chat-add.svg" >
+                
+                <!-- 채팅방 생성 -->
+                <div class="create-room flex-col gap-16">
+                    <div>
+                        <h2>새 채팅방 만들기</h2>
+                    </div>
+                    <div class="flex-col chat-type gap-12">
+                        <span class="fw-600">채팅방 유형</span>
+                        <div class="flex">
+                            <div class="private flex-center fw-600 fs-16 gap-8 type-select">
+                                <img src="../../static/images/chatting/private.svg" >
+                                개인
+                            </div>
+                            <div class="group flex-center fw-600 fs-16 gap-8">
+                                <img src="../../static/images/chatting/group.svg">
+                                그룹
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-col gap-12 add-user">
+                        <span class="fw-600">초대할 사람</span>
+                        <input id="search-memberName" name="memberName" placeholder="검색" type="search">
+                        <ul class="follow-list flex-col gap-12">
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+                            <li>
+                                <label class="follow-item flex">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="name">소연님</span>
+                                    </div>
+                                    <input type="radio" name="invite">
+                                </label>
+                            </li>
+
+                        </ul>  
+                    </div>
+                    <div class="flex">
+                        <div>생성하기</div>
+                        <div>취소</div>
+                    </div>
+
+                </div>
             </div>
 
             <div class="room-list-body">
@@ -250,8 +345,11 @@
 
                     </ul>
 
+
                     <!-- 입력창 -->
-                    <div class="send-area flex">
+                     
+                    <div class="send-area flex display-none">
+
                         <textarea id="send-message" name="messageContent" rows="1" placeholder="메시지를 입력하세요"></textarea>
 
                         <div class="flex gap-12">
@@ -263,6 +361,22 @@
                             <input type="file" name="chatImg" id="chatImg" accept="image/*" hidden>
                         </div>
 
+                    </div>
+
+                    <div class="edit-area flex gap-24 ">
+                        <div class="flex-col gap-8">
+                            <div class="flex gap-8 message-edit">
+                                <img src="../../static/images/chatting/light-edit.svg" >
+                                <span>메세지 수정하는 중 . . .</span>
+                                <span id="edit-cancle-btn">x</span>
+                            </div>
+                            <textarea id="edit-message" name="messageContent" rows="1" placeholder="메시지를 입력하세요"></textarea>
+                        </div>
+
+                        <div class="flex gap-12">
+                            <img id="edit-btn" src="../../static/images/chatting/edit.svg" >
+                        </div>
+                        
                     </div>
 
                     
@@ -280,7 +394,6 @@
 
 
 
-
-    <link rel="stylesheet" href="../../static/js/chatting/chatting.js">
+    <script src="../../static/js/chatting/chatting.js"></script>
 </body>
 </html>
