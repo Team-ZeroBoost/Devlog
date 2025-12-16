@@ -22,7 +22,7 @@
                 <img id="chat-add-btn" src="../../static/images/chatting/chat-add.svg" >
                 
                 <!-- 채팅방 생성 -->
-                <div class="create-room flex-col gap-16">
+                <div class="create-room flex-col gap-16 hide">
                     <div>
                         <h2>새 채팅방 만들기</h2>
                     </div>
@@ -100,17 +100,14 @@
 
                         </ul>  
                         <div class="select-user-list flex gap-8">
-                            <div class="user-item">
-                                <span>소연님</span>
-                                <span class="list-delete-btn">x</span>
-                            </div>
+                            
                             
                             
                         </div>
                     </div>
                     <div class="flex">
-                        <div>생성하기</div>
-                        <div>취소</div>
+                        <div id="room-create-btn" class="flex-center fw-600">생성하기</div>
+                        <div id="room-cancle-btn" class="flex-center fw-600">취소</div>
                     </div>
 
                 </div>
