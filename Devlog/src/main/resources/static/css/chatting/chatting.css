@@ -94,7 +94,7 @@ input[type="search"]::-webkit-search-cancel-button {
     
 }
 
-#chatting-search-area:focus, #send-message:focus, #edit-message:focus, #search-memberName:focus {
+#chatting-search-area:focus, #send-message:focus, #edit-message:focus, #search-memberName:focus, #roomName:focus {
     outline: none;
     border-color: #E5B0EA;
     
@@ -227,6 +227,15 @@ input[type="search"]::-webkit-search-cancel-button {
 .type-select {
     background-color: #BD83CE;
     color : white
+}
+
+#roomName{
+    width: 80%;
+    height: 40px;
+    border: 1px solid #868686;
+    border-radius: 10px;
+    padding-left: 10px;
+
 }
 
 input[name="memberName"] {

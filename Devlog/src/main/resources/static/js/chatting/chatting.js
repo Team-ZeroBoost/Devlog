@@ -44,46 +44,77 @@ chatAddBtn.addEventListener('click', () => {
 const radioCheck = document.getElementsByName('invite')
 const userList = document.getElementsByClassName('select-user-list')[0]
 
-for (let item of radioCheck) {
-
-    item.addEventListener("change", e => {
-
-        const followItem =  e.target.closest('.follow-item');
-        const userName = followItem.querySelector('.name').innerText;
-        console.log(userName)
-
-        
-        const div = document.createElement('div')
-        const span = document.createElement('span')
-        const deleteBtn = document.createElement('span')
-        div.classList.add('user-item')
-        span.innerHTML = userName
-        deleteBtn.classList.add('list-delete-btn')
-        deleteBtn.innerText = ' x'
-
-        userList.innerHTML = "";
-
-        div.append(span, deleteBtn);
-        userList.appendChild(div);
-
-
-        deleteBtn.addEventListener('click', e => {
-            item.checked = false;
-            userList.innerHTML = "";
-        })
-
-    })
-    
-}
-
-
 /* 개인 그룹 선택 */
 const private = document.querySelector('.private');
 const group = document.querySelector('.group');
+const roomNameARea = document.querySelector('.roomNameArea')
+
+
+
 
 private.addEventListener('click', e=>{
-    private.classList
+    if(group.classList.contains('type-select')){
+        group.classList.remove('type-select')
+    }
+
+    private.classList.add('type-select')
 })
+
+
+group.addEventListener('click', e=>{
+    if(private.classList.contains('type-select')){
+        private.classList.remove('type-select')
+    }
+
+    group.classList.add('type-select')
+    
+    roomNameARea.classList.remove('display-none')
+    
+
+
+})
+
+
+for (let item of radioCheck) {
+    if(private.classList.contains('type-select')){
+    
+        item.addEventListener("change", e => {
+    
+            for (let check of radioCheck) {
+                check.checked = false;
+            }
+    
+            item.checked = true
+            const followItem =  e.target.closest('.follow-item');
+            const userName = followItem.querySelector('.name').innerText;
+            console.log(userName)
+            
+            const div = document.createElement('div')
+            const span = document.createElement('span')
+            const deleteBtn = document.createElement('span')
+            div.classList.add('user-item')
+            span.innerHTML = userName
+            deleteBtn.classList.add('list-delete-btn')
+            deleteBtn.innerText = ' x'
+    
+            userList.innerHTML = "";
+    
+            div.append(span, deleteBtn);
+            userList.appendChild(div);
+    
+    
+            deleteBtn.addEventListener('click', e => {
+                item.checked = false;
+                userList.innerHTML = "";
+            })
+    
+        })
+        
+    }
+    
+
+}    
+
 
 
 
