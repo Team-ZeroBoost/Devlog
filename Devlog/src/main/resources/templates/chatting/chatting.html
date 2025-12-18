@@ -350,6 +350,49 @@
 
                 <!-- 방이 있을 경우 -->
                 <div class="flex-col room-exist">
+
+                    <!-- 굿 -->
+                    <div class="overlay" id="chat-overlay"></div>
+
+                    <!-- 나갈거니 ? 확인 화면 -->
+                    <div class="exit-check flex-col gap-12 display-none">
+
+                        <span class="fw-600">채팅방을 나가시겠습니까 ?</span>
+                        <span class="fs-12">주의* 대화내용이 모두 삭제됩니다.</span>
+                        <div class="flex gap-24">
+                            <span id="yes">예</span>
+                            <span id="no">아니오</span>
+                        </div>
+                    </div>
+
+                    <!-- 유저 초대 창 --> 
+                    <div class="user-invite-box flex-col gap-16 display-none">
+                        <img src="../../static/images/chatting/invite.svg" style="width: 30px; height: 30px;">
+                        <span class="fw-600">초대할 사람</span>
+                        <input id="room-invite-user" name="addUserName" placeholder="검색" type="search">
+                        <ul class="invite-user-list flex-col gap-12">
+                            <li>
+                                <label class="flex user-list">
+                                    <div class="flex gap-12">
+                                        <img class="profile-img" src="../../static/images/logo.png">
+                                        <span class="user-name">소연님</span>
+                                    </div>
+                                    <input type="checkbox" name="roomInvite" class="roomInvite">
+                                </label>
+                            </li>                 
+                        </ul>  
+                        <!-- 유저 체크 시 태그느낌 으로 -->
+                        <div class="select-user-area flex gap-8">
+                            
+                        </div>
+
+                        <div class="flex gap-24">
+                            <div id="invite-user" class="flex-center fw-600">초대하기</div>
+                            <div id="invite-cancel" class="flex-center fw-600">취소</div>
+                        </div>
+                    </div>
+
+
                     <!-- 채팅방 정보 -->
                     <div class="flex chat-info">
                         <div class="flex gap-12">
@@ -399,6 +442,7 @@
 
                         <div class="member-panel-title">
                             <span class="team-name">Zero-Boost</span>
+                            <!-- 방장한테만 보이게 클릭 시 input창 전환 -->
                             <img class="edit-icon" src="../../static/images/chatting/edit.svg">
                         </div>
 
@@ -614,7 +658,7 @@
 
 
                     <!-- 입력창 -->                    
-                    <div class="send-area flex display-none">
+                    <div class="send-area flex">
 
                         <textarea id="send-message" name="messageContent" rows="1" placeholder="메시지를 입력하세요"></textarea>
 
@@ -629,7 +673,7 @@
 
                     </div>
 
-                    <div class="edit-area flex gap-24 ">
+                    <div class="edit-area flex gap-24 display-none">
                         <div class="flex-col gap-8">
                             <div class="flex gap-8 message-edit">
                                 <img src="../../static/images/chatting/light-edit.svg" >

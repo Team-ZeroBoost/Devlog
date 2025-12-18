@@ -469,6 +469,7 @@ input[name="memberName"] {
 }
 
 /* 메세지 전송 */
+
 .send-area {
     justify-content: space-evenly;
 }
@@ -525,13 +526,14 @@ input[name="memberName"] {
 
 #edit-message {
     width: 100%;
-    min-height: 40px;
+    min-height: 40px;        /* 시작 높이 */
+    max-height: 60px;
     resize: none;
     border-radius: 10px;
     border: 1px solid #868686;
     padding: 10px;
     line-height: 1.4;
-    overflow-y: hidden; 
+    overflow-y: auto; 
 }
 
 .edit-area {
@@ -829,4 +831,108 @@ input[name='msgSearch'] {
 #exit-pin > img {
     width: 25px;
     height: 25px;
+}
+
+
+/* ------------------------------ */
+/* 채팅방 나가기 화면 */
+.exit-check{
+    position: absolute;
+    z-index: 1001;
+    width: 40%;
+    height: 20%;
+    border: 1px solid #E0CAFF;
+
+    border-radius: 10px;
+    background-color: #F7E8F6;
+    left: 30%;
+    top: 40%;
+    padding-top: 20px;
+
+    align-items: center;
+}
+
+.exit-check > div {
+    margin-top: 40px;
+}
+
+.exit-check > div > span {
+    width: 60px;
+    height: 25px;
+    border: 1px solid #a855f7;
+    text-align: center;
+    border-radius: 10px;
+}
+
+#yes:hover, #no:hover {
+    cursor: pointer;
+    background-color: #a855f7;
+    color: white;
+    transition: all 0.5s;
+} 
+
+/* -------------------------------------------- */
+/* 채팅방에서 회원 초대 창*/
+.user-invite-box {
+    position: absolute;
+    width: 40%;
+    height: 50%;
+    z-index: 1001;
+    left: 30%;
+    top: 25%;
+    background-color: white;
+    border: 1px solid #E5B0EA;
+    align-items: center;
+    padding-top: 10px;
+    border-radius: 10px;
+    
+}
+
+
+.invite-user-list{
+    list-style: none;
+    width: 75%;
+    height: 60%;
+    border: 1px solid #E5E7EB;
+    padding: 15px;
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+.user-list {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#room-invite-user {
+    width: 75%;
+    height: 30px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding-left: 10px;
+}
+
+.user-list> div {
+    align-items: center;
+}
+
+#invite-user, #invite-cancel {
+    width: 100px;
+    height: 50px;
+    border: 1px solid #F7E8F6;
+    border-radius: 10px;
+}
+
+#invite-user:hover, #invite-cancel:hover {
+    transition: all 0.5s;
+    background-color: #BD83CE;
+    color: white;
+    cursor: pointer;
+}
+
+.select-user-area {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
 }

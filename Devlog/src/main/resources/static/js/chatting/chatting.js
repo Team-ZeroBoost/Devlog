@@ -305,6 +305,7 @@ function emojiClickClose(emojiArea) {
 
 
 /* ---------------------------------------- */
+/* 검색, 메뉴 슬라이드 효과 */
 const searchPanel = document.querySelector('.chat-search-panel');
 const searchBtn = document.getElementById('text-search-btn');
 const chatMenuBtn = document.getElementById('chat-menu-btn')
@@ -321,9 +322,198 @@ searchBtn.addEventListener('click', e => {
 
 chatMenuBtn.addEventListener('click', e => {
     e.stopPropagation()
-    // 다른 패널 닫기
     searchPanel?.classList.remove('is-open');
     
-    // 멤버 패널 토글
     menuPanel.classList.toggle('is-open');
 })
+
+
+/* ----------------------------------- */
+/* 채팅방 나가기 버튼 클릭 시 */
+const exitBtn = document.getElementById('exit-btn');
+const exitArea = document.querySelector('.exit-check')
+const chatOverlay = document.getElementById('chat-overlay')
+
+exitBtn?.addEventListener('click', e => {
+    exitArea.classList.remove('display-none');
+    chatOverlay.classList.add('active')
+}) 
+
+document.getElementById('no').addEventListener('click', e => {
+    exitArea.classList.add('display-none')
+    chatOverlay.classList.remove('active')
+})
+
+
+
+/* 채팅방 나가기 버튼 클릭 ㅅ ㅣ로직 추가 */
+document.getElementById('yes').addEventListener('click', e => {
+    exitArea.classList.add('display-none')
+    chatOverlay.classList.remove('active')
+
+
+
+    /* 비동기 로직 추가 */
+})
+
+
+/* ------------------------------------------- */
+/* 수정하기 버튼 클릭 시 입력 폼 변화 */
+const sendArea = document.querySelector('.send-area');
+const editArea = document.querySelector('.edit-area');
+
+const editCancelBtn = document.getElementById('edit-cancle-btn');
+
+const msgEditBtn = document.querySelectorAll('.msg-edit-btn')
+
+for (let editBtn of msgEditBtn) {
+
+    editBtn.addEventListener('click', e => {
+
+        const opt = editBtn.closest('.msg-option')
+        opt.classList.add('display-none')
+        openEditMode();
+    })
+    
+}
+
+
+/* 편입 입력으로 전환 */
+function openEditMode(originText) {
+    // 기존 입력창 숨김
+    sendArea.classList.add('display-none');
+
+    // 수정창 표시
+    editArea.classList.remove('display-none');
+
+    // 기존 메시지 내용 세팅
+    document.getElementById('edit-message').focus();
+}
+
+editCancelBtn.addEventListener('click', () => {
+    closeEditMode();
+});
+
+/* 다시 본 입력창 전환 */
+function closeEditMode() {
+    // 수정창 숨김
+    editArea.classList.add('display-none');
+
+    // 기존 입력창 표시
+    sendArea.classList.remove('display-none');
+
+    // 수정 textarea 초기화 (선택)
+    document.getElementById('edit-message').value = '';
+}
+
+
+/* 수정보튼 클릭 or 엔터 입력 시 서버에 전송 ?  */
+/* editBtn?.addEventListener('click', () => {
+    const editedText = document.getElementById('edit-message').value;
+
+    if (!editedText.trim()) return;
+
+    
+
+    closeEditMode();
+}); */
+
+
+
+/* 유저 초대 */
+/* 초대 버튼 클릭 시 비동기로 회원 목록 조회후 fragment 써서 렌더링 예정 */
+/*  */
+
+const inviteBtn = document.getElementById('invite-btn');
+const inviteList = document.getElementsByName('roomInvite')
+const selectedArea = document.querySelector('.select-user-area');
+
+
+inviteBtn?.addEventListener('click', e=> {
+    for (let item of inviteList) {
+        item.checked = false
+        
+    }
+    selectedArea.innerHTML = ""
+    chatOverlay.classList.add('active')
+    document.getElementsByClassName('user-invite-box')[0].classList.remove('display-none')
+
+})
+
+
+
+for (let checkbox of inviteList) {
+    checkbox.addEventListener('change', e => {
+
+        const listBox = e.target.closest('.user-list');
+
+        const nameEl =
+            listBox.querySelector('.user-name') ||
+            listBox.querySelector('span');
+
+        const userName = nameEl.innerText;
+
+        if (e.target.checked) {
+            if (!inviteExist(userName)) {
+                inviteAddUser(userName, e.target);
+            }
+        } else {
+            inviteDeleteUser(userName);
+        }
+    });
+}
+
+function inviteAddUser(userName, checkbox) {
+    const div = document.createElement('div');
+    div.classList.add('user-item');
+
+    const span = document.createElement('span');
+    span.innerText = userName;
+
+    const deleteBtn = document.createElement('span');
+    deleteBtn.classList.add('list-delete-btn');
+    deleteBtn.innerText = ' x';
+
+    deleteBtn.addEventListener('click', () => {
+        checkbox.checked = false;
+        div.remove();
+    });
+
+    div.append(span, deleteBtn);
+    selectedArea.appendChild(div);
+}
+
+function inviteExist(userName) {
+    const items = selectedArea.getElementsByClassName('user-item');
+    for (let item of items) {
+        if (item.innerText.includes(userName)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function inviteDeleteUser(userName) {
+    const items = selectedArea.getElementsByClassName('user-item');
+    for (let item of items) {
+        if (item.innerText.includes(userName)) {
+            item.remove();
+            return;
+        }
+    }
+}
+
+
+
+document.getElementById('invite-cancel').addEventListener('click', e => {
+  document.getElementsByClassName('user-invite-box')[0].classList.add('display-none')  
+  chatOverlay.classList.remove('active')
+})
+
+document.getElementById('invite-user').addEventListener('click', e => {
+    document.getElementsByClassName('user-invite-box')[0].classList.add('display-none');
+    chatOverlay.classList.remove('active');
+
+    alert("초대 되었습니다 ! ");
+})
+
