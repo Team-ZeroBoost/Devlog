@@ -1,4 +1,7 @@
 
+
+
+
 /* 선택 효과 주기 */
 const listItem = document.getElementsByClassName('room-item')
 
