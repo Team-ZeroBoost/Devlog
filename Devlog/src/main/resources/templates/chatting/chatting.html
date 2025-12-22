@@ -435,13 +435,13 @@
 
             <div class="chatting-area">
                 <!-- 방이 없을 경우 -->
-                <div class="flex-col flex-center room-empty  display-none">
+                <div class="flex-col flex-center room-empty">
                     <img th:src="@{/images/logo.png}" >
                     <h1>대화가 시작되길 기다리고 있어요</h1>
                 </div>  
 
                 <!-- 방이 있을 경우 -->
-                <div class="flex-col room-exist">
+                <div class="flex-col room-exist display-none">
 
                     <!-- 굿 -->
                     <div class="overlay" id="chat-overlay"></div>
