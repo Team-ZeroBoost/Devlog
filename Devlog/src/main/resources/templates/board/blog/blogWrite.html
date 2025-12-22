@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVLOG - 글 작성</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <link rel="stylesheet" href="../../../static/css/board/blog/blogWrite.css">
+</head>
+
+<body>
+
+    <main class="write-container">
+        <section class="title-section">
+            <input type="text" class="input-title" placeholder="제목을 입력하세요.">
+            <div class="divider"></div>
+            <input type="text" class="input-tag" placeholder="# 태그 입력">
+        </section>
+
+        <div class="spell-check-area">
+            <span>스마트 맞춤법 검사</span>
+            <label class="toggle-switch">
+                <input type="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div id="editor"></div>
+
+        <section class="bottom-section">
+
+            <div class="paid-content-settings">
+                <div class="setting-title">
+                    <span class="crown-icon">👑</span> 유료 콘텐츠 발행
+                </div>
+                <p class="setting-desc">
+                    유료 콘텐츠는 구매자에게 직접적인 가치를 전달하는 중요한 제품입니다.<br>
+                    자세한 내용을 확인하신 후 발행을 진행해 주세요. <a href="#">자세히 알아보기</a>
+                </p>
+
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="content-type" value="free" checked>
+                        <span class="radio-custom"></span>
+                        일반 콘텐츠로 발행합니다
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="content-type" value="paid">
+                        <span class="radio-custom"></span>
+                        유료 콘텐츠로 발행합니다
+                    </label>
+                </div>
+
+                <div class="price-input-wrapper" id="priceWrapper">
+                    <span class="price-label">판매 금액</span>
+                    <div class="input-with-icon">
+                        <span class="bean-icon">🫘</span> <input type="number" id="priceInput" placeholder="0" disabled>
+                        <span class="unit">콩</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-exit">← 나가기</button>
+                <div class="right-buttons">
+                    <button class="btn-draft">임시저장</button>
+                    <button class="btn-publish">발행하기</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <script src="../../../static/js/board/blog/blogWrite.js"></script>
+</body>
+
+</html>
