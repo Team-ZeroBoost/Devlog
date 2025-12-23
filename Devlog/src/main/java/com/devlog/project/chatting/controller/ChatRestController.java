@@ -20,6 +20,7 @@ public class ChatRestController {
 	
 	private final ChattingService chattingService;
 	
+	// 채팅방 목록 조회
 	@GetMapping("/devtalk/chatList")
 	public String selectChatList(@RequestParam("memberNo") int memberNo
 			, Model model){
@@ -33,5 +34,7 @@ public class ChatRestController {
 		
 		return "chatting/chatting ::#roomList";
 	}
+	
+	
 	
 }	
