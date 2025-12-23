@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link rel="stylesheet" th:href="@{/css/common/notification.css}" />
-  <link rel="stylesheet" th:href="@{/css/common/main.css}" />
 </head>
 
 <body>
@@ -20,7 +18,7 @@
         </button>
 
         <!-- 사이드바 -->
-        <aside class="sidebar" id="sidebar">
+        <a class="sidebar" id="sidebar">
           <div class="sidebar-header">
             <img th:src="@{/images/common/devlog.svg}" alt="logo" class="sidebar-logo" />
             <span class="sidebar-title">DevLog</span>
@@ -49,7 +47,7 @@
               <li><img th:src="@{/images/common/logout.svg}" alt="logout" /> Logout</li>
             </ul>
           </nav>
-        </aside>
+        </a>
 
         <!-- 배경 오버레이 -->
         <div class="overlay" id="overlay"></div>
