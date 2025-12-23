@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
         <!-- 상단 로고/소개 -->
         <div class="ft-top">
           <div class="ft-logo">
-            <img src="../../static/images/common/devlog.svg" alt="DevLog Logo" class="ft-logo-img" />
+            <img th:src="@{/images/common/devlog.svg}" alt="DevLog Logo" class="ft-logo-img" />
             <p class="ft-desc">
               개발자의 감성과 지식을 잇는 새로운 블로그 커뮤니티<br />
               <strong>Devlog</strong> 가 만들어갑니다.
