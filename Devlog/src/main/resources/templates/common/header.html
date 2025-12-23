@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link rel="stylesheet" th:href="@{/css/common/notification.css}" />
-  <link rel="stylesheet" th:href="@{/css/common/main.css}" />
 </head>
 
 <body>
@@ -20,7 +18,7 @@
         </button>
 
         <!-- 사이드바 -->
-        <aside class="sidebar" id="sidebar">
+        <a class="sidebar" id="sidebar">
           <div class="sidebar-header">
             <img th:src="@{/images/common/devlog.svg}" alt="logo" class="sidebar-logo" />
             <span class="sidebar-title">DevLog</span>
@@ -49,7 +47,7 @@
               <li><img th:src="@{/images/common/logout.svg}" alt="logout" /> Logout</li>
             </ul>
           </nav>
-        </aside>
+        </a>
 
         <!-- 배경 오버레이 -->
         <div class="overlay" id="overlay"></div>
@@ -211,21 +209,38 @@
 
             </div>
         </div>
-      <!-- 프로필 -->
-      <div class="profile" id="profile">
-        <img th:src="@{/images/common/d1.png}" alt="profile" />
-        <span>My</span>
+        <!-- 비회원일 시 -->
+        <button th:if="${loginMember == null}"
+                id="signinBtn"
+                class="signin-btn">
+          Sign in
+        </button>
 
-        <!-- 드롭다운 메뉴 -->
-        <ul class="dropdown" id="dropdown">
-          <li>My Dev</li>
-          <li>Coffee Beans</li>
-          <li id="devtalk">DevTalk</li>
-          <li>Logout</li>
-        </ul>
+        <!-- 회원일 시 -->
+        <div th:if="${loginMember != null}"
+            class="profile"
+            id="profile">
+
+          <img th:src="${loginMember.profileImg != null 
+                        ? loginMember.profileImg 
+                        : '/images/common/d1.png'}"
+              alt="profile" />
+
+          <span th:text="${loginMember.memberNickname}">
+            My
+          </span>
+
+          <!-- 드롭다운 메뉴 -->
+          <ul class="dropdown" id="dropdown">
+            <li>My Dev</li>
+            <li>Coffee Beans</li>
+            <li id="devtalk">DevTalk</li>
+            <li id="logout">Logout</li>
+          </ul>
       </div>
     </div>
   </div>
+  
     </header>
 </body>
 </html>
