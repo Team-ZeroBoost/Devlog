@@ -5,13 +5,20 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class MainController {
 
 	@GetMapping("/")
-	public String mainPage(Model model) { 
-		return "common/main"; 
+	public String mainPage(HttpSession session, Model model) {
+		
+	    model.addAttribute("loginMember", session.getAttribute("loginMember"));
+
+	    return "common/main";
 	}
+	
 	
 	@GetMapping("/loginError")
 	public String loginError(RedirectAttributes ra) {
