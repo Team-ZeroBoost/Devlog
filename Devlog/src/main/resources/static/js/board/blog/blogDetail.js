@@ -1,21 +1,67 @@
 // 상태 변수
 let userCoffeeBeans = 12450;
 const contentPrice = 3000;
-let isFollowing = false; // 팔로우 상태
+let isFollowing = false;
 
-// === 6. 작성자 권한 관련 변수 (서버에서 받아온 값이라 가정) ===
-let isAuthor = true;      // 현재 로그인한 사람이 작성자인가?
-let isPaidContent = true; // 유료 글인가?
-let viewCount = 999;      // 조회수 (1 이상이면 삭제 불가)
+// 게시글 상태
+let isAuthor = true;
+let isPaidContent = true;
+let viewCount = 999;
+let postLikeCount = 1;
+let isPostLiked = false;
+
+// 현재 로그인한 사용자 정보
+const currentUser = {
+    id: 'user1',
+    nickname: 'GwanSik_Yang',
+    profileUrl: 'https://via.placeholder.com/40'
+};
+
+// 댓글 데이터
+let comments = [
+    {
+        id: 1,
+        userId: 'user2',
+        nickname: 'DevKing',
+        profileUrl: 'https://via.placeholder.com/40/333',
+        content: '정말 유익한 글이네요! 면접 준비 중인데 큰 도움이 되었습니다.',
+        date: '2025.11.07 14:20',
+        likes: 5,
+        isLiked: false,
+        replies: [
+            {
+                id: 101,
+                userId: 'user1',
+                nickname: 'GwanSik_Yang',
+                profileUrl: 'https://via.placeholder.com/40',
+                content: '감사합니다! 꼭 합격하시길 응원합니다 :)',
+                date: '2025.11.07 15:00',
+                likes: 2,
+                isLiked: true,
+            }
+        ]
+    },
+    {
+        id: 2,
+        userId: 'user3',
+        nickname: 'NewBie',
+        profileUrl: 'https://via.placeholder.com/40/777',
+        content: '질문 2번 내용이 특히 공감되네요. 솔직함이 무기죠.',
+        date: '2025.11.08 09:10',
+        likes: 0,
+        isLiked: false,
+        replies: []
+    }
+];
 
 // DOM 요소 참조
-const modalOverlay = document.getElementById('modalOverlay');
-const modalPurchase = document.getElementById('modalPurchase');
-const modalNoBalance = document.getElementById('modalNoBalance');
-const modalSuccess = document.getElementById('modalSuccess');
-const modalReport = document.getElementById('modalReport'); // 신고 모달
-const articleContent = document.getElementById('articleContent');
-const userBalanceDisplay = document.getElementById('userBalance');
+const postHeartIcon = document.getElementById('postHeartIcon');
+const postLikeCountSpan = document.getElementById('postLikeCount');
+const btnPostLike = document.getElementById('btnPostLike');
+
+const commentListEl = document.getElementById('commentList');
+const commentTotalCountEl = document.getElementById('commentTotalCount');
+const mainCommentInput = document.getElementById('mainCommentInput');
 
 const authorActionArea = document.getElementById('authorActionArea');
 const btnEdit = document.getElementById('btnEdit');
@@ -24,34 +70,261 @@ const btnDelete = document.getElementById('btnDelete');
 // 초기화
 function init() {
     updateBalanceDisplay();
-    checkAuthorPermissions(); // 6번 요구사항 체크
+    checkAuthorPermissions();
+    renderComments();
 }
 
+// === 게시글 좋아요 ===
+function togglePostLike() {
+    isPostLiked = !isPostLiked;
+
+    if (isPostLiked) {
+        postLikeCount++;
+        btnPostLike.classList.add('active');
+        postHeartIcon.classList.remove('fa-regular');
+        postHeartIcon.classList.add('fa-solid');
+    } else {
+        postLikeCount--;
+        btnPostLike.classList.remove('active');
+        postHeartIcon.classList.remove('fa-solid');
+        postHeartIcon.classList.add('fa-regular');
+    }
+    postLikeCountSpan.innerText = postLikeCount;
+}
+
+// === 댓글 렌더링 ===
+function renderComments() {
+    commentListEl.innerHTML = '';
+    let totalCount = 0;
+
+    comments.forEach(comment => {
+        totalCount++;
+        commentListEl.appendChild(createCommentElement(comment, false));
+
+        if (comment.replies && comment.replies.length > 0) {
+            comment.replies.forEach(reply => {
+                totalCount++;
+                commentListEl.appendChild(createCommentElement(reply, true, comment.id));
+            });
+        }
+    });
+
+    commentTotalCountEl.innerText = totalCount;
+    document.getElementById('commentCount').innerText = totalCount;
+}
+
+function createCommentElement(data, isReply, parentId = null) {
+    const el = document.createElement('div');
+    el.className = `comment-item ${isReply ? 'reply' : ''}`;
+    el.id = `comment-${data.id}`;
+
+    const isMine = data.userId === currentUser.id;
+    const heartClass = data.isLiked ? 'fa-solid' : 'fa-regular';
+    const activeClass = data.isLiked ? 'active' : '';
+
+    // [수정] 프로필 이미지와 닉네임에 링크 적용
+    el.innerHTML = `
+        <a href="/blog/${data.nickname}" class="profile-link">
+            <img src="${data.profileUrl}" alt="${data.nickname}" class="avatar">
+        </a>
+        <div class="comment-content">
+            <div class="comment-header">
+                <div class="comment-meta">
+                    <a href="/blog/${data.nickname}" class="profile-link">
+                        <span class="username">${data.nickname}</span>
+                    </a>
+                    <span class="comment-date">${data.date}</span>
+                </div>
+            </div>
+            
+            <div class="comment-text" id="text-${data.id}">${data.content}</div>
+            
+            <div class="comment-actions">
+                <button class="action-btn like-comment-btn ${activeClass}" onclick="toggleCommentLike(${data.id}, ${parentId})">
+                    <i class="${heartClass} fa-heart"></i> ${data.likes || 0}
+                </button>
+                ${!isReply ? `<button class="action-btn" onclick="openReplyForm(${data.id})">답글 달기</button>` : ''}
+                ${isMine ? `
+                    <button class="action-btn" onclick="enableEditMode(${data.id}, ${parentId})">수정</button>
+                    <button class="action-btn delete-btn" onclick="deleteComment(${data.id}, ${parentId})">삭제</button>
+                ` : ''}
+            </div>
+            <div id="reply-form-area-${data.id}"></div>
+        </div>
+    `;
+    return el;
+}
+
+// === 댓글 CRUD ===
+
+// 1. 메인 댓글 작성
+function addMainComment() {
+    const content = mainCommentInput.value.trim();
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    const newComment = {
+        id: Date.now(),
+        userId: currentUser.id,
+        nickname: currentUser.nickname,
+        profileUrl: currentUser.profileUrl,
+        content: content,
+        date: new Date().toLocaleString(),
+        likes: 0,
+        isLiked: false,
+        replies: []
+    };
+
+    comments.push(newComment);
+    mainCommentInput.value = '';
+    renderComments();
+}
+
+// 2. 답글 폼 열기
+function openReplyForm(commentId) {
+    const area = document.getElementById(`reply-form-area-${commentId}`);
+    if (area.innerHTML !== '') {
+        area.innerHTML = '';
+        return;
+    }
+
+    document.querySelectorAll('[id^="reply-form-area-"]').forEach(el => el.innerHTML = '');
+
+    // [수정] 답글 폼 내 프로필에도 링크 적용
+    const formHtml = `
+        <div class="reply-form-container">
+            <div class="comment-user-profile">
+                 <a href="/blog/${currentUser.nickname}" class="profile-link">
+                    <img src="${currentUser.profileUrl}" class="avatar" style="width:24px;height:24px;">
+                    <span class="username" style="font-size:0.85rem;">${currentUser.nickname}</span>
+                 </a>
+            </div>
+            <div class="input-wrapper">
+                <textarea id="replyInput-${commentId}" placeholder="답글을 작성하세요..."></textarea>
+                <div class="input-footer">
+                    <button class="btn-submit-styled" onclick="addReply(${commentId})">등록</button>
+                </div>
+            </div>
+        </div>
+    `;
+    area.innerHTML = formHtml;
+}
+
+// 3. 답글 작성 완료
+function addReply(parentId) {
+    const input = document.getElementById(`replyInput-${parentId}`);
+    const content = input.value.trim();
+    if (!content) return alert("내용을 입력하세요.");
+
+    const parentComment = comments.find(c => c.id === parentId);
+    if (parentComment) {
+        const newReply = {
+            id: Date.now(),
+            userId: currentUser.id,
+            nickname: currentUser.nickname,
+            profileUrl: currentUser.profileUrl,
+            content: content,
+            date: new Date().toLocaleString(),
+            likes: 0,
+            isLiked: false
+        };
+        parentComment.replies.push(newReply);
+        renderComments();
+    }
+}
+
+// 4. 댓글 좋아요
+function toggleCommentLike(id, parentId) {
+    let target;
+    if (parentId) {
+        const parent = comments.find(c => c.id === parentId);
+        target = parent.replies.find(r => r.id === id);
+    } else {
+        target = comments.find(c => c.id === id);
+    }
+
+    if (target) {
+        target.isLiked = !target.isLiked;
+        target.likes += target.isLiked ? 1 : -1;
+        renderComments();
+    }
+}
+
+// 5. 댓글 삭제
+function deleteComment(id, parentId) {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    if (parentId) {
+        const parent = comments.find(c => c.id === parentId);
+        parent.replies = parent.replies.filter(r => r.id !== id);
+    } else {
+        comments = comments.filter(c => c.id !== id);
+    }
+    renderComments();
+}
+
+// 6. 댓글 수정 모드 (버튼 숨김)
+function enableEditMode(id, parentId) {
+    const textEl = document.getElementById(`text-${id}`);
+    const currentText = textEl.innerText;
+
+    textEl.innerHTML = `
+        <textarea id="editInput-${id}" class="edit-textarea">${currentText}</textarea>
+        <div style="text-align:right;">
+            <button class="action-btn" onclick="saveEdit(${id}, ${parentId})" style="display:inline-block; color:var(--primary-color);">저장</button>
+            <button class="action-btn" onclick="renderComments()" style="display:inline-block;">취소</button>
+        </div>
+    `;
+
+    // 수정 중 하단 액션 버튼 숨기기
+    const commentItem = document.getElementById(`comment-${id}`);
+    const actionArea = commentItem.querySelector('.comment-actions');
+    if (actionArea) {
+        actionArea.style.display = 'none';
+    }
+}
+
+// 7. 댓글 수정 저장
+function saveEdit(id, parentId) {
+    const newContent = document.getElementById(`editInput-${id}`).value;
+
+    if (parentId) {
+        const parent = comments.find(c => c.id === parentId);
+        const target = parent.replies.find(r => r.id === id);
+        target.content = newContent;
+    } else {
+        const target = comments.find(c => c.id === id);
+        target.content = newContent;
+    }
+    renderComments();
+}
+
+// === 유틸 함수 ===
 function updateBalanceDisplay() {
-    userBalanceDisplay.innerText = userCoffeeBeans.toLocaleString() + '콩';
+    document.getElementById('userBalance').innerText = userCoffeeBeans.toLocaleString() + '콩';
 }
 
-// === 모달 공통 함수 ===
 function closeAllModals() {
-    modalOverlay.classList.add('hidden');
-    modalPurchase.classList.add('hidden');
-    modalNoBalance.classList.add('hidden');
-    modalSuccess.classList.add('hidden');
-    modalReport.classList.add('hidden');
+    document.getElementById('modalOverlay').classList.add('hidden');
+    document.getElementById('modalPurchase').classList.add('hidden');
+    document.getElementById('modalNoBalance').classList.add('hidden');
+    document.getElementById('modalSuccess').classList.add('hidden');
+    document.getElementById('modalReport').classList.add('hidden');
 }
 
-// === 구매 로직 (기존과 동일) ===
 function openPurchaseModal() {
-    modalOverlay.classList.remove('hidden');
-    modalPurchase.classList.remove('hidden');
+    document.getElementById('modalOverlay').classList.remove('hidden');
+    document.getElementById('modalPurchase').classList.remove('hidden');
 }
 
 function processPayment() {
-    modalPurchase.classList.add('hidden');
+    document.getElementById('modalPurchase').classList.add('hidden');
     if (userCoffeeBeans >= contentPrice) {
-        modalSuccess.classList.remove('hidden');
+        document.getElementById('modalSuccess').classList.remove('hidden');
     } else {
-        modalNoBalance.classList.remove('hidden');
+        document.getElementById('modalNoBalance').classList.remove('hidden');
     }
 }
 
@@ -59,10 +332,9 @@ function completePurchase() {
     closeAllModals();
     userCoffeeBeans -= contentPrice;
     updateBalanceDisplay();
-    articleContent.classList.remove('locked');
+    document.getElementById('articleContent').classList.remove('locked');
 }
 
-// === 2. 팔로우 버튼 토글 ===
 function toggleFollow(btn) {
     isFollowing = !isFollowing;
     if (isFollowing) {
@@ -74,35 +346,23 @@ function toggleFollow(btn) {
     }
 }
 
-// === 5. 신고 모달 로직 ===
 function openReportModal() {
-    modalOverlay.classList.remove('hidden');
-    modalReport.classList.remove('hidden');
+    document.getElementById('modalOverlay').classList.remove('hidden');
+    document.getElementById('modalReport').classList.remove('hidden');
 }
 
 function submitReport() {
-    const reason = document.querySelector('input[name="reportReason"]:checked').value;
-    const detail = document.querySelector('.report-text').value;
-
-    // 여기서 서버로 전송 로직 수행
-    console.log(`신고 접수: ${reason}, 내용: ${detail}`);
-
-    alert("신고가 정상적으로 접수되었습니다.");
+    alert("신고가 접수되었습니다.");
     closeAllModals();
 }
 
-// === 6. 수정/삭제 버튼 권한 제어 (핵심 로직) ===
 function checkAuthorPermissions() {
-    // 1. 작성자가 아니면 버튼 영역 자체를 숨김
     if (!isAuthor) {
         authorActionArea.classList.add('hidden');
         return;
     }
-
-    // 작성자라면 영역 표시
     authorActionArea.classList.remove('hidden');
 
-    // 조건 A: 유료글은 업로드 후 수정 불가
     if (isPaidContent) {
         btnEdit.disabled = true;
         btnEdit.title = "유료 게시글은 수정할 수 없습니다.";
@@ -111,37 +371,25 @@ function checkAuthorPermissions() {
         btnEdit.title = "";
     }
 
-    // 조건 B: 조회수가 1명이라도 있으면 삭제 불가
     if (viewCount > 0) {
         btnDelete.disabled = true;
-        btnDelete.title = "조회수가 발생한 게시글은 삭제할 수 없습니다.";
+        btnDelete.title = "조회수가 있어 삭제 불가";
     } else {
         btnDelete.disabled = false;
         btnDelete.onclick = function () {
-            if (confirm("정말 삭제하시겠습니까?")) {
-                alert("삭제되었습니다.");
-            }
-        };
+            if (confirm('삭제하시겠습니까?')) alert('삭제됨');
+        }
     }
 }
 
-
-// === 테스트용 함수 (우측 상단 컨트롤 패널 연결) ===
 function setBalance(amount) {
     userCoffeeBeans = amount;
     updateBalanceDisplay();
 }
 
 function toggleAuthorMode() {
-    const isAuthorCheck = document.getElementById('checkAuthor').checked;
-    const isPaidCheck = document.getElementById('checkPaid').checked;
-
-    isAuthor = isAuthorCheck;
-    isPaidContent = isPaidCheck;
-
-    // 조회수 테스트를 위해 임의로 설정 (필요시 변경)
-    viewCount = 999;
-
+    isAuthor = document.getElementById('checkAuthor').checked;
+    isPaidContent = document.getElementById('checkPaid').checked;
     checkAuthorPermissions();
 }
 

@@ -15,11 +15,6 @@
         <main class="main-content">
 
             <header class="post-header">
-                <div id="authorActionArea" class="author-actions hidden">
-                    <button id="btnEdit" class="btn-action">수정</button>
-                    <button id="btnDelete" class="btn-action delete">삭제</button>
-                </div>
-
                 <div class="post-title-wrap">
                     <i class="fa-solid fa-crown crown-icon"></i>
                     <h1 class="post-title">기술면접에서 살아남는 현실 꿀팁 7가지</h1>
@@ -31,16 +26,27 @@
                             <span class="author">by <strong>GwanSik_Yang</strong></span>
                         </a>
                         <button class="btn-follow" onclick="toggleFollow(this)">+ 팔로우</button>
+                    </div>
+
+                    <div class="meta-right-group">
+                        <div id="authorActionArea" class="author-actions hidden">
+                            <button id="btnEdit" class="btn-text">수정</button>
+                            <span class="divider">|</span>
+                            <button id="btnDelete" class="btn-text delete">삭제</button>
+                        </div>
 
                         <div class="stats">
-                            <span><i class="fa-solid fa-heart"></i> 1</span>
-                            <span><i class="fa-regular fa-comment-dots"></i> 3</span>
-                            <span><i class="fa-solid fa-link"></i> <span id="viewCount">999</span>+</span>
+                            <span id="btnPostLike" class="like-btn" onclick="togglePostLike()">
+                                <i class="fa-regular fa-heart" id="postHeartIcon"></i>
+                                <span id="postLikeCount">1</span>
+                            </span>
+                            <span><i class="fa-regular fa-comment-dots"></i> <span id="commentCount">3</span></span>
+                            <span><i class="fa-regular fa-eye"></i> <span id="viewCount">999</span>+</span>
                             <span class="report" onclick="openReportModal()"><i class="fa-regular fa-bell"></i>
                                 신고</span>
                         </div>
+                        <span class="date">2025.11.07</span>
                     </div>
-                    <span class="date">2025.11.07</span>
                 </div>
 
                 <div class="tag-badges">
@@ -98,24 +104,30 @@
             </div>
 
             <section class="comments-section">
-                <div class="comment-header">
-                    <a href="/blog/GwanSik_Yang">
-                        <img src="https://via.placeholder.com/40" alt="User" class="avatar">
-                    </a>
-                    <span class="username">GwanSik_Yang</span>
+                <h3>댓글 <span id="commentTotalCount">3</span></h3>
+
+                <div class="comment-write-area">
+                    <div class="comment-user-profile">
+                        <a href="/blog/GwanSik_Yang" class="profile-link">
+                            <img src="https://via.placeholder.com/40" alt="User" class="avatar">
+                            <span class="username">GwanSik_Yang</span>
+                        </a>
+                    </div>
+                    <div class="input-wrapper">
+                        <textarea id="mainCommentInput" placeholder="댓글을 작성하세요..."></textarea>
+                        <div class="input-footer">
+                            <button class="btn-submit-styled" onclick="addMainComment()">등록하기</button>
+                        </div>
+                    </div>
                 </div>
-                <h3>댓글</h3>
-                <div class="comment-input-area">
-                    <textarea placeholder="댓글을 작성하세요..."></textarea>
-                    <button class="btn-submit-styled">등록하기</button>
-                </div>
+
+                <div id="commentList" class="comment-list"></div>
             </section>
 
         </main>
     </div>
 
     <div id="modalOverlay" class="modal-overlay hidden">
-
         <div id="modalPurchase" class="modal-box hidden">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-crown"></i> 유료 콘텐츠 구매하기</h3>
@@ -178,7 +190,6 @@
                 <button class="btn-primary full-width" onclick="submitReport()">신고 접수</button>
             </div>
         </div>
-
     </div>
 
     <div
