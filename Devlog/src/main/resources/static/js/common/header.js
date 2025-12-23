@@ -1,34 +1,47 @@
-console.log('header.js load')
+console.log("header.js load");
 
-const devtalkBtn = document.getElementById('devtalk')
+// 채탕
+const devtalkBtn = document.getElementById("devtalk");
+devtalkBtn?.addEventListener("click", () => {
+  location.href = "/devtalk";
+});
 
+// 로그인
+const signinBtn = document.getElementById("signinBtn");
+signinBtn?.addEventListener("click", () => {
+  window.location.href = "/member/login";
+});
 
-devtalkBtn?.addEventListener('click', e => {
-    location.href = '/devtalk'
-})
+// 로그인
+const logout = document.getElementById("logout");
+logout?.addEventListener("click", () => {
+  window.location.href = "/member/logout";
+});
 
-// 사이드바, 프로필 모달, 배경 오버레이
+// 프로필
 const profile = document.getElementById("profile");
-const menuBtn = document.getElementById("menuBtn");
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-profile.addEventListener("click", () => {
+profile?.addEventListener("click", () => {
   profile.classList.toggle("active");
 });
 
+// 바깥 클릭 시 닫기
 window.addEventListener("click", (e) => {
-  if (!profile.contains(e.target)) {
+  if (profile && !profile.contains(e.target)) {
     profile.classList.remove("active");
   }
 });
 
-menuBtn.addEventListener("click", () => {
-  sidebar.classList.toggle("active");
-  overlay.classList.toggle("active");
+// 사이드바
+const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+menuBtn?.addEventListener("click", () => {
+  sidebar?.classList.toggle("active");
+  overlay?.classList.toggle("active");
 });
 
-overlay.addEventListener("click", () => {
-  sidebar.classList.remove("active");
-  overlay.classList.remove("active");
+overlay?.addEventListener("click", () => {
+  sidebar?.classList.remove("active");
+  overlay?.classList.remove("active");
 });
