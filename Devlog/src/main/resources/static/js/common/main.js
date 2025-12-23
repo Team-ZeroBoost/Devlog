@@ -1,0 +1,308 @@
+const profile = document.getElementById("profile");
+
+profile.addEventListener("click", () => {
+  profile.classList.toggle("active");
+});
+
+// 바깥 클릭 시 닫기
+window.addEventListener("click", (e) => {
+  if (!profile.contains(e.target)) {
+    profile.classList.remove("active");
+  }
+});
+
+const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+menuBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+});
+
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+});
+
+const posts = [
+  {
+    image: "/images/sample1.png",
+    likes: 152,
+    writer: "김소연",
+    preview: "따뜻한 조명과 함께 작업하기 좋은 공간을 소개합니다.",
+  },
+  {
+    image: "/images/sample2.png",
+    likes: 87,
+    writer: "홍길동",
+    preview: "오늘은 코드를 정리하면서 느낀 점들을 공유해보려 합니다.",
+  },
+  {
+    image: "/images/sample3.png",
+    likes: 233,
+    writer: "ZeroBoost",
+    preview: "개발자 커뮤니티에 새로운 글 작성 기능을 추가했어요!",
+  },
+  {
+    image: "/images/sample4.png",
+    likes: 402,
+    writer: "요상한고앵이",
+    preview: "회사앞에 제발로 찾아온 고양이, 입사시켜도 될까요?",
+  },
+  {
+    image: "/images/sample5.png",
+    likes: 593,
+    writer: "재택근무워너비",
+    preview: "부서 내에 좋아하는 사람이 생겼어요. 어쩌죠?",
+  },
+  {
+    image: "/images/sample6.png",
+    likes: 553,
+    writer: "김주연",
+    preview:
+      "왜나한테만그러는데왜나한테만그러는데왜나한테만그러는데왜나한테만그러는데",
+  },
+];
+
+const postGrid = document.getElementById("postGrid");
+
+posts.forEach((post) => {
+  const card = `
+  <div class="post-card">
+    <div class="post-img">
+      <img src="${post.image}" alt="post" />
+    </div>
+    <div class="post-info">
+      <div class="post-top">
+        <div class="likes">
+          <img src="heart.svg" alt="like" />
+          <span>${post.likes}</span>
+        </div>
+        <span class="writer">Writer. ${post.writer}</span>
+      </div>
+      <p class="post-preview">${post.preview}</p>
+    </div>
+  </div>
+`;
+  postGrid.insertAdjacentHTML("beforeend", card);
+});
+
+// 최신 피드용 더미 데이터
+// 지금은 더미데이터고, 나중에는 스프링부트 fetch 요청으로 바꿀 예정입니다.
+const latestPosts = [
+  {
+    image: "sample1.jpg",
+    likes: 284,
+    writer: "소연",
+    preview: "회사 앞에 있는 길냥이인데 이 자식 자세가 심상치 않습니다.",
+  },
+  {
+    image: "sample2.jpg",
+    likes: 212,
+    writer: "스크롤",
+    preview: "어쩌다보니 그림 그리는데 이게 또 재밌더라구요.",
+  },
+  {
+    image: "sample3.jpg",
+    likes: 195,
+    writer: "소요",
+    preview: "아직까지 지금 회사 구내식당만큼 맛있는 곳을 찾지 못한 것 같다.",
+  },
+  {
+    image: "sample4.jpg",
+    likes: 153,
+    writer: "소빵",
+    preview: "부서 내에 좋아하는 사람이 생긴 것 같아요. 사내연애는 비추인가요?",
+  },
+  {
+    image: "sample5.jpg",
+    likes: 93,
+    writer: "소샤",
+    preview:
+      "오늘은 재택근무 하는 날~ 혹시 저처럼 데스크테리어 좋아하는 분들 계신가요?",
+  },
+  {
+    image: "sample1.jpg",
+    likes: 284,
+    writer: "소연",
+    preview: "회사 앞에 있는 길냥이인데 이 자식 자세가 심상치 않습니다.",
+  },
+  {
+    image: "sample2.jpg",
+    likes: 212,
+    writer: "스크롤",
+    preview: "어쩌다보니 그림 그리는데 이게 또 재밌더라구요.",
+  },
+  {
+    image: "sample3.jpg",
+    likes: 195,
+    writer: "소요",
+    preview: "아직까지 지금 회사 구내식당만큼 맛있는 곳을 찾지 못한 것 같다.",
+  },
+  {
+    image: "sample4.jpg",
+    likes: 153,
+    writer: "소빵",
+    preview: "부서 내에 좋아하는 사람이 생긴 것 같아요. 사내연애는 비추인가요?",
+  },
+  {
+    image: "sample5.jpg",
+    likes: 93,
+    writer: "소샤",
+    preview:
+      "오늘은 재택근무 하는 날~ 혹시 저처럼 데스크테리어 좋아하는 분들 계신가요?",
+  },
+];
+
+const latestFeedGrid = document.getElementById("latestFeedGrid");
+
+latestPosts.forEach((post) => {
+  const card = `
+  <div class="post-card">
+    <div class="post-img">
+      <img src="${post.image}" alt="post" />
+    </div>
+    <div class="post-info">
+      <div class="post-top">
+        <div class="likes">
+          <img src="heart.svg" alt="like" />
+          <span>${post.likes}</span>
+        </div>
+        <span class="writer">Writer. ${post.writer}</span>
+      </div>
+      <p class="post-preview">${post.preview}</p>
+    </div>
+  </div>
+`;
+  latestFeedGrid.insertAdjacentHTML("beforeend", card);
+});
+
+// 활동중인 친구 목록 나중에 요청으로 바꿀거임 지금은 그냥 더미
+const activeFriends = [
+  { img: "friend1.png", name: "짱구" },
+  { img: "friend2.png", name: "예솔" },
+  { img: "friend3.jpeg", name: "주몽" },
+  { img: "friend1.png", name: "훈이" },
+  { img: "friend1.png", name: "맹구" },
+  { img: "friend1.png", name: "나비" },
+  { img: "friend1.png", name: "도라미" },
+];
+
+const friendsList = document.getElementById("friendsList");
+
+activeFriends.forEach((friend) => {
+  const el = `
+  <div class="friend">
+    <img src="${friend.img}" alt="${friend.name}" title="${friend.name}" />
+  </div>
+`;
+  friendsList.insertAdjacentHTML("beforeend", el);
+});
+
+const newsList = [
+  {
+    title: "게임 축제 'AGF 2025', 뜨거운 열기…일산 킨텍스 '인산인해'",
+    desc: "(지디넷코리아=정진성 기자)국내 최대 규모의 서브컬쳐 축제 'AGF 2025(Anime X Game Festival)'가 지난 5일 고양시 킨텍스에서 화려한 막을 올렸다. 7일까지 사흘 동안...",
+    image: "sample_news1.jpg",
+  },
+  {
+    title: "폴더블 아이폰, 300만원대?…‘돈값’ 할까",
+    desc: "(지디넷코리아=이정현 미디어연구소) 최근 원자재 및 부품 가격이 상승하면서 내년에 출시될 것으로 예상되는 아이폰 폴드의 가격에 관심이 높아지고 있다.",
+    image: "sample_news2.jpg",
+  },
+  {
+    title: "여친에게 사과 메시지 보냈다가 '식겁'...카톡 대참사 무슨 일?..",
+    desc: "“그렇게 느낄 수도 있겠다 미안해. 나도 진짜 같이 준비하는 게 좋고 너랑 이런 얘기 나누는 게 설레는데...” 네티즌들 사이에서 화제인 카톡 대화 사건.",
+    image: "sample_news3.jpg",
+  },
+  {
+    title: "크래프톤, 'AI 펠로우십' 4기 모집 '1000만원 장학금'",
+    desc: "(주)크래프톤은 AI 인재 양성 프로그램 ‘크래프톤 AI 펠로우십(KRAFTON AI Fellowship Program)’ 4기를 모집한다고 밝혔다.",
+    image: "sample_news4.jpg",
+  },
+];
+
+const newsGrid = document.getElementById("newsGrid");
+
+newsList.forEach((news) => {
+  const card = `
+    <div class="news-card">
+      <div class="news-text">
+        <h3 class="news-title">${news.title}</h3>
+        <p class="news-desc">${news.desc}</p>
+      </div>
+      <div class="news-thumb">
+        <img src="${news.image}" alt="news thumbnail" />
+      </div>
+    </div>
+  `;
+  newsGrid.insertAdjacentHTML("beforeend", card);
+});
+
+const cafes = [
+  {
+    name: "콘티뉴이티",
+    address: "서울 중구 수표로 30 OK빌딩 3층",
+    phone: "0507-1359-5675",
+    hours: "영업시간 11:30 - 22:00",
+    image: "cafe1.jpeg",
+  },
+  {
+    name: "리프카페",
+    address: "서울 종로구 대학로 8길 3",
+    phone: "02-333-4444",
+    hours: "영업시간 11:00 - 21:30",
+    image: "cafe1.jpeg",
+  },
+  {
+    name: "브루잉랩",
+    address: "서울 서대문구 연희로 7길 10",
+    phone: "02-555-9999",
+    hours: "영업시간 09:00 - 22:30",
+    image: "cafe1.jpeg",
+  },
+  {
+    name: "카페 테라스",
+    address: "서울 마포구 양화로 162",
+    phone: "02-123-4567",
+    hours: "영업시간 10:00 - 21:00",
+    image: "cafe1.jpeg",
+  },
+  {
+    name: "커피앤코드",
+    address: "서울 성수동 12-3",
+    phone: "02-222-1234",
+    hours: "영업시간 11:00 - 23:00",
+    image: "cafe1.jpeg",
+  },
+  {
+    name: "하루디저트",
+    address: "서울 강남구 논현로 55길 12",
+    phone: "0507-1122-3344",
+    hours: "영업시간 09:30 - 22:00",
+    image: "cafe6.jpg",
+  },
+];
+
+const cafeList = document.getElementById("cafeList");
+
+cafes.forEach((cafe) => {
+  const item = `
+    <div class="cafe-item">
+      <div class="cafe-thumb">
+        <img src="${cafe.image}" alt="${cafe.name}" />
+      </div>
+      <div class="cafe-info">
+        <h3 class="cafe-name">${cafe.name}</h3>
+        <p class="cafe-address">${cafe.address}</p>
+        <p class="cafe-phone">전화번호 ${cafe.phone}</p>
+        <p class="cafe-hours">${cafe.hours}</p>
+        <button class="cafe-btn">
+          <img src="map-icon.svg" alt="길찾기 아이콘" /> 길찾기
+        </button>
+      </div>
+    </div>
+  `;
+  cafeList.insertAdjacentHTML("beforeend", item);
+});
