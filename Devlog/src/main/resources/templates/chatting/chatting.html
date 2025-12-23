@@ -77,66 +77,17 @@
                         <span class="fw-600">초대할 사람</span>
                         <input id="search-memberName" name="memberName" placeholder="검색" type="search">
 
-                        <ul class="follow-list flex-col gap-12">
-                            <li>
+                        <ul class="follow-list flex-col gap-12" id="chatFollowList">
+                            <li th:each="fwl : ${followList}">
                                 <label class="follow-item flex">
                                     <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">소연님</span>
+                                        <img class="profile-img" th:src="${fwl.profileImg}">
+                                        <span class="name" th:text="${fwl.memberNickname}">회원 닉네임</span>
                                     </div>
-                                    <input type="checkbox" name="invite">
+                                    <input type="checkbox" name="invite" th:data-member-no ="${fwl.memberNo}">
                                 </label>
                             </li>
 
-                            <li>
-                                <label class="follow-item flex">
-                                    <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">주연님</span>
-                                    </div>
-                                    <input type="checkbox" name="invite">
-                                </label>
-                            </li>
-
-                            <li>
-                                <label class="follow-item flex">
-                                    <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">율영님</span>
-                                    </div>
-                                    <input type="checkbox" name="invite">
-                                </label>
-                            </li>
-
-                            <li>
-                                <label class="follow-item flex">
-                                    <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">종구님</span>
-                                    </div>
-                                    <input type="checkbox" name="invite">
-                                </label>
-                            </li>
-
-                            <li>
-                                <label class="follow-item flex">
-                                    <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">희준님</span>
-                                    </div>
-                                    <input type="checkbox" name="invite">
-                                </label>
-                            </li>
-
-                            <li>
-                                <label class="follow-item flex">
-                                    <div class="flex gap-12">
-                                        <img class="profile-img" th:src="@{/images/logo.png}">
-                                        <span class="name">규식님</span>
-                                    </div>
-                                    <input type="checkbox" name="invite">
-                                </label>
-                            </li>
                         </ul> 
                         
                         <div class="select-user-list flex gap-8">

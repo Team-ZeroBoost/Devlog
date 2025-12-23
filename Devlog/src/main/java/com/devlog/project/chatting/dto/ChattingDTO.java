@@ -31,6 +31,19 @@ public class ChattingDTO {
 
 
 	}
+	
+	
+	
+	@Getter
+	@Setter
+	@ToString
+	public static class FollowListDTO {
+		
+		private Long memberNo;
+		private String memberNickname;
+		private String profileImg;
+		
+	}
 
 
 }

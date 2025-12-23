@@ -1,5 +1,7 @@
 
 const memberNo = 1;
+let followList = false;
+
 document.addEventListener('DOMContentLoaded', e => {
 
     selectChatList(memberNo);
@@ -25,14 +27,14 @@ function selectChatList(memberNo){
 
 // roomList 컨테이너에 한 번만 이벤트 걸기
 document.addEventListener('click', (e) => {
-  const item = e.target.closest('.room-item');
-  if (!item) return; // room-item이 아닌 곳 클릭이면 무시
+    const item = e.target.closest('.room-item');
+    if (!item) return; // room-item이 아닌 곳 클릭이면 무시
 
-  // 현재 room-list 안의 room-item만 대상으로 선택 해제
-  const container = document.getElementById('roomList');
-  container.querySelectorAll('.room-item').forEach(el => el.classList.remove('is-selected'));
+    // 현재 room-list 안의 room-item만 대상으로 선택 해제
+    const container = document.getElementById('roomList');
+    container.querySelectorAll('.room-item').forEach(el => el.classList.remove('is-selected'));
 
-  item.classList.add('is-selected');
+    item.classList.add('is-selected');
 });
 
 
@@ -63,14 +65,27 @@ chatAddBtn.addEventListener('click', () => {
             check.checked = false;
         }
     
+    if(followList) return ;
+
+    fetch('/devtalk/followSelect')
+    .then(resp => resp.text())
+    .then(html => {
+        followList = true;
+
+        document.getElementById('chatFollowList').outerHTML = html;
+
+        followCheckbox()
+
+    })
+    .catch(e => console.log('팔로우 조회 실패', e))
     
 });
 
 
 /* 유저 선택 시 */
-const radioCheck = document.getElementsByName('invite')
-const userList = document.getElementsByClassName('select-user-list')[0]
 
+const userList = document.getElementsByClassName('select-user-list')[0]
+const radioCheck = document.getElementsByName('invite')
 /* 개인 그룹 선택 */
 const private = document.querySelector('.private');
 const group = document.querySelector('.group');
@@ -85,6 +100,7 @@ const imagePreview = document.getElementById('roomImagePreview');
 
 let chatType = 'private'
 
+const followListContainer = document.getElementById('chatFollowList');
 
 /* 개인 버튼 클릭 시 */
 private.addEventListener('click', e=>{
@@ -146,46 +162,50 @@ imageInput.addEventListener('change', e => {
 });
 
 
-for (let item of radioCheck) {
+function followCheckbox() {
     
-    
-    item.addEventListener("change", e => {
-
+    for (let item of radioCheck) {
         
-
-        const followItem =  e.target.closest('.follow-item');
-        const userName = followItem.querySelector('.name').innerText;
-
-        if(chatType == 'private') {
-            for (let check of radioCheck) {
-            check.checked = false;
-            }
-
-            item.checked = true
-            userList.innerHTML = '';
-
-            addUser(userName, item);
-        }
-
-
-        if(chatType == 'group') {
+        
+        
+        item.addEventListener("change", e => {
+    
             
-            if(item.checked) {
-
-                if(!exist(userName)) {
-                    addUser(userName, item);
+    
+            const followItem =  e.target.closest('.follow-item');
+            const userName = followItem.querySelector('.name').innerText;
+    
+            if(chatType == 'private') {
+                for (let check of radioCheck) {
+                check.checked = false;
                 }
-            } else {
-
-                deleteUser(userName);
+    
+                item.checked = true
+                userList.innerHTML = '';
+    
+                addUser(userName, item);
             }
-
-
-        }
-        
-    })
-
-}    
+    
+    
+            if(chatType == 'group') {
+                
+                if(item.checked) {
+    
+                    if(!exist(userName)) {
+                        addUser(userName, item);
+                    }
+                } else {
+    
+                    deleteUser(userName);
+                }
+    
+    
+            }
+            
+        })
+    
+    }    
+}
 
 
 /* 유저 추가 함수 */
@@ -236,6 +256,55 @@ function deleteUser(userName) {
         }
     }
 }
+
+
+/* 생성버튼 클릭 시 */
+document.getElementById('room-create-btn').addEventListener('click', async e => {
+
+    if (chatType === 'private') {
+        const result = await createPrivate();
+        console.log(result); // 서버 응답 확인
+        
+    }
+
+});
+
+
+
+async function createPrivate(){
+    
+    try {
+
+    
+        const checked = document.querySelector('input[name="invite"]:checked');
+        if (!checked) return alert('대화할 사용자를 선택하세요.');
+
+        const targetMemberNo = checked.dataset.memberNo;
+        console.log(targetMemberNo)
+
+    /* const resp =  await fetch("/devtalk/create/private",{
+        method : "POST",
+        headers: {'Content-Type' : 'application/json'},
+        body : JSON.stringify({
+            targetMemberNo})
+        })
+
+        const result = await resp.text();
+
+        return result; */
+    } catch(e) {
+        console.error(e);
+        alert('채팅방 생성 실패');
+    }
+    
+}
+
+async   function createGroup(){
+
+
+
+}
+
 
 
 document.getElementById('room-cancle-btn')?.addEventListener('click', e => {

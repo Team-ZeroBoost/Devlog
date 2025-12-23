@@ -5,11 +5,16 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.devlog.project.chatting.dto.ChattingDTO;
 import com.devlog.project.chatting.service.ChattingService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +40,36 @@ public class ChatRestController {
 		return "chatting/chatting ::#roomList";
 	}
 	
+	
+	@GetMapping("/devtalk/followSelect")
+	public String selectFollowList(
+			// 세션 로그인 멤버
+			Model model
+			) {
+		
+		int memberNo = 1;
+		
+		List<ChattingDTO.FollowListDTO> followList = chattingService.selectFollowList(memberNo);
+		
+		log.info("팔로우 리스트 조회 결과 : {} ", followList);
+		
+		model.addAttribute("followList", followList);
+		
+		return "chatting/chatting ::#chatFollowList";
+	}
+	
+	@PostMapping("/devtalk/create/private")
+	@ResponseBody
+	public Long privateCreate(
+			@RequestBody int targetMemberNo
+			// @SessionAttribute 로그인 멤버
+			
+			) {
+		
+		int myMemberNo = 1;
+		
+		return chattingService.privateCreate(myMemberNo, targetMemberNo);
+	}
 	
 	
 }	
