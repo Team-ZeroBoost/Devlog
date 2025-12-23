@@ -1,9 +1,9 @@
 // 1. Toast UI Editor 초기화
 const editor = new toastui.Editor({
-    el: document.querySelector('#editor'),
-    height: '600px',
-    initialEditType: 'markdown',
-    previewStyle: 'vertical',
+    el: document.querySelector('#editor'), /* 에디터 적용할 요소 */
+    height: '600px', /* 에디터 영역 높이 값 */
+    initialEditType: 'markdown', /* 최초로 보여줄 에디터 타입 */
+    previewStyle: 'vertical', /* 마크다운 프리뷰 스타일 */
     placeholder: '내용을 입력하세요.',
     hooks: {
         addImageBlobHook: (blob, callback) => {
@@ -47,7 +47,7 @@ function renderTags() {
 
 // 태그 입력 이벤트 리스너
 tagInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === ',') {
         e.preventDefault(); // 기본 동작(폼 제출 등) 방지
         addTag(tagInput.value);
     }
