@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar');
 
+  // window에서 객체 가져오기/없으면 빈 배열
+  const rawData = window.jobPostingData || [];
+
+  const event = rawData.map(job => {
+    let dataStr = job.applyEnd;
+
+    
+  })
+
+
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'ko',

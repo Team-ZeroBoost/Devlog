@@ -3,12 +3,22 @@ package com.devlog.project.board.jobposting.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.devlog.project.board.jobposting.dto.JobPostingDTO;
+import com.devlog.project.board.jobposting.mapper.JobpostingMapper;
+
 @Service
 public class JobPostingServiceImpl implements JobPostingService {
+	
+	@Autowired
+	private JobpostingMapper jobmapper;
+	
+	
 	@Scheduled(cron = "0 1 1 * * *") // 초 분 시 일 월 요일
 	public void JobCrawler() {
 		System.out.println(">>> JobCrawler() 메서드 진입 성공!");
@@ -41,5 +51,12 @@ public class JobPostingServiceImpl implements JobPostingService {
 	        System.err.println("에러 발생");
 	        e.printStackTrace();
 	    }
+	}
+
+	
+	// 채용 리스트 뽑아오기
+	@Override
+	public List<JobPostingDTO> selectjoblist() {
+		return jobmapper.selectjoblist();
 	}
 }

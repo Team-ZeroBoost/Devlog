@@ -13,6 +13,7 @@ options.add_argument('--disable-gpu')
 driver = webdriver.Chrome(options=options)
 
 try:
+    
     driver.get('https://www.jobkorea.co.kr/Theme/it_developer')
     wait = WebDriverWait(driver, 10)
     
