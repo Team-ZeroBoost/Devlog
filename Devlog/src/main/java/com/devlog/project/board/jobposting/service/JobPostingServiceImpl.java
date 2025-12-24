@@ -19,7 +19,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 	private JobpostingMapper jobmapper;
 	
 	
-	@Scheduled(cron = "0 1 1 * * *") // 초 분 시 일 월 요일
+	@Scheduled(cron = "0 3 0 * * *") // 초 분 시 일 월 요일
 	public void JobCrawler() {
 		System.out.println(">>> JobCrawler() 메서드 진입 성공!");
 	    try {

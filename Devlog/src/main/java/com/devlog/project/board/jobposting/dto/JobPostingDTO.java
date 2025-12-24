@@ -18,7 +18,7 @@ public class JobPostingDTO {
 	private String salary;
 	private String reqCareer;
 	private String reqEducation;
-	private String applyStrart;
+	private String applyStart;
 	private String applyEnd;
 	private String applyMethod;
 	private Long companyCode;

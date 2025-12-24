@@ -22,15 +22,19 @@
       <div class="calendar-header">
         <h1>IT 채용 정보</h1>
         <p>최신 공고를 한 눈에 모아보세요!</p>
+        <div class="legend">
+          <div class="purple">오늘 등록</div>
+          <div class="pink">오늘 마감</div>
+        </div>
       </div>
 
       <div id="calendar"></div>
       <script th:inline="javascript">
-      /*<![CDATA[*/
-          // 이 부분에서 타임리프가 데이터를 자바스크립트 객체로 변환
-          window.jobPostingData = [[${jobcalender}]];
-          console.log("데이터 확인:", window.jobPostingData); 
-      /*]]>*/
+        /*<![CDATA[*/
+        // 이 부분에서 타임리프가 데이터를 자바스크립트 객체로 변환
+        window.jobPostingData = [[${ jobcalender }]];
+        console.log("데이터 확인:", window.jobPostingData);
+        /*]]>*/
       </script>
     </div>
 

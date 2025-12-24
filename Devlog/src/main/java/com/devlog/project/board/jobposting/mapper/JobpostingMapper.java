@@ -12,4 +12,6 @@ public interface JobpostingMapper {
 
 	List<JobPostingDTO> selectjoblist();
 
+
+
 }
