@@ -279,19 +279,20 @@ async function createPrivate(){
         const checked = document.querySelector('input[name="invite"]:checked');
         if (!checked) return alert('대화할 사용자를 선택하세요.');
 
-        const targetMemberNo = checked.dataset.memberNo;
+        const targetMemberNo = Number(checked.dataset.memberNo);
         console.log(targetMemberNo)
 
-    /* const resp =  await fetch("/devtalk/create/private",{
+        const resp =  await fetch("/devtalk/create/private",{
         method : "POST",
         headers: {'Content-Type' : 'application/json'},
         body : JSON.stringify({
-            targetMemberNo})
+            "targetMemberNo" : targetMemberNo})
         })
 
         const result = await resp.text();
+        
+        return result;
 
-        return result; */
     } catch(e) {
         console.error(e);
         alert('채팅방 생성 실패');

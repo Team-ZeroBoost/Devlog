@@ -16,9 +16,19 @@ public interface ChattingUserRepository extends JpaRepository<ChattingUser, Chat
 	
 	
 	// 회원 있는지
-	Optional<Long> findPrivateRoomNo(int myMemberNo, int targetMemberNo);
-
-
+	@Query("""
+		SELECT cr.roomNo
+		from ChattingUser cu
+		join ChatRoom cr on cu.id.roomNo = cr.roomNo
+		where cr.roomType = 'PRIVATE'
+		and cu.id.memberNo in (:myMemberNo, :targetMemberNo)
+		group by cr.roomNo
+		having count(distinct  cu.id.memberNo) = 2
+	
+			""")
+	Optional<Long> findPrivateRoomNo(@Param("myMemberNo") Long myMemberNo, @Param("targetMemberNo") Long targetMemberNo);
+	
+	
 	
 	
 	

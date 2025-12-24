@@ -44,6 +44,14 @@ public class ChattingDTO {
 		private String profileImg;
 		
 	}
+	
+	
+	@Getter
+	@Setter
+	@ToString
+	public static class targetMemberNoDTO {
+		private Long targetMemberNo;
+	}
 
 
 }

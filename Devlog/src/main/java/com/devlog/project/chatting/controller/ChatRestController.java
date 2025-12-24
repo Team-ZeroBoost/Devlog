@@ -1,6 +1,8 @@
 package com.devlog.project.chatting.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,12 +63,17 @@ public class ChatRestController {
 	@PostMapping("/devtalk/create/private")
 	@ResponseBody
 	public Long privateCreate(
-			@RequestBody int targetMemberNo
+			@RequestBody ChattingDTO.targetMemberNoDTO target
 			// @SessionAttribute 로그인 멤버
 			
 			) {
 		
-		int myMemberNo = 1;
+		Long targetMemberNo = target.getTargetMemberNo();
+		
+		
+		Long myMemberNo = 1l;
+		
+		log.info("myMemberNo={}, targetMemberNo={}", myMemberNo, targetMemberNo);
 		
 		return chattingService.privateCreate(myMemberNo, targetMemberNo);
 	}

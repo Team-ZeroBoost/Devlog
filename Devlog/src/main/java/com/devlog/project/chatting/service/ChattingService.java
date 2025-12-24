@@ -15,7 +15,7 @@ public interface ChattingService {
 	
 	
 	// 개인 채팅방 생성
-	Long privateCreate(int myMemberNo, int targetMemberNo);
+	Long privateCreate(Long myMemberNo, Long targetMemberNo);
 	
 
 }
