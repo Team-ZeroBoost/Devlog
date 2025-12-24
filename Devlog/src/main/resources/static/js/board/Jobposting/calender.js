@@ -1,71 +1,67 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const calendarEl = document.getElementById('calendar');
+    const calendarEl = document.getElementById('calendar');
+    const rawData = window.jobPostingData || [];
 
-  // window에서 객체 가져오기/없으면 빈 배열
-  const rawData = window.jobPostingData || [];
-
-  const event = rawData.map(job => {
-    let dataStr = job.applyEnd;
-
+    const events = rawData.map(job => {
+    // 시작일(applyStart)을 우선적으로 사용
+    let dateStr = (job.applyStart && job.applyStart.includes('.')) ? job.applyStart : job.applyEnd;
     
-  })
+    // 만약 시작일도 없고 마감일도 이상하면 오늘 날짜
+    if (!dateStr || !dateStr.includes('.')) {
+        dateStr = new Date().toISOString().slice(0, 10);
+    }
+
+    // 점(.)을 하이픈(-)으로 변경
+    const finalDate = dateStr.replace(/\./g, '-');
+
+    return {
+        title: job.postingTitle,
+        start: finalDate,
+        // 마감일이 있으면 보라색, 없으면 핑크색 유지
+        className: (job.applyEnd && job.applyEnd.includes('채용시')) ? 'event-pink' : 'event-purple'
+    };
+});
 
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'ko',
-    headerToolbar: {
-      left: 'title',
-      center: '',
-      right: 'prev,next'
-    },
-    titleFormat: { year: 'numeric', month: 'long' },
 
-    dayMaxEvents: 2, // 하루에 최대 2개만 표시, 나머지는 +n개
-    contentHeight: 700, // 전체 달력 높이를 고정
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'ko',
+        // 현재 날짜가 24일이면 18일 데이터가 잘 보입니다. 
+        // 만약 안 보인다면 initialDate를 직접 지정해볼 수 있습니다.
+        // initialDate: '2025-12-01', 
+        headerToolbar: { 
+            left: 'title', 
+            center: '', 
+            right: 'prev,next today' 
+        },
+        dayMaxEvents: 3, 
+        contentHeight: 750,
+        events: events
+    });
 
-    events: [
-      { title: '(주)크래딧 소프트웨어..', start: '2025-12-03', className: 'event-purple' },
-      { title: '지에스네오텍(주) IT(A..', start: '2025-12-03', className: 'event-pink' },
-      { title: '(주)크래딧 소프트웨어..', start: '2025-12-03', className: 'event-purple' },
-      { title: '(주)크래딧 소프트웨어..', start: '2025-12-09', className: 'event-purple' },
-      { title: '지에스네오텍(주) IT(A..', start: '2025-12-12', className: 'event-pink' }
-    ],
+    calendar.render();
 
-  });
-
-  calendar.render();
-
-  // 팝업 생성 함수
-  function showEventPopup(dateStr, events) {
-    const oldPopup = document.querySelector('.custom-popup');
-    if (oldPopup) oldPopup.remove();
-
-    // 팝업 요소 생성
-    const popup = document.createElement('div');
-    popup.className = 'custom-popup';
-    
-    let eventListHtml = events.map(ev => `
-      <div class="popup-item ${ev.classNames[0]}">
-        ${ev.title}
-      </div>
-    `).join('');
-
-    popup.innerHTML = `
-      <div class="popup-content">
-        <div class="popup-header">
-          <strong>${dateStr}</strong>
-          <span class="close-btn">&times;</span>
-        </div>
-        <div class="popup-body">
-          ${eventListHtml}
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    popup.querySelector('.close-btn').onclick = () => popup.remove();
-    window.onclick = (e) => { if (e.target == popup) popup.remove(); };
-  }
+    function showEventPopup(dateStr, events) {
+        const old = document.querySelector('.custom-popup');
+        if (old) old.remove();
+        const popup = document.createElement('div');
+        popup.className = 'custom-popup';
+        popup.innerHTML = `
+            <div class="popup-content">
+                <div class="popup-header">
+                    <strong>${dateStr} 공고</strong>
+                    <span class="close-btn" style="cursor:pointer;">&times;</span>
+                </div>
+                <div class="popup-body">
+                    ${events.map(ev => `
+                        <div class="popup-item ${ev.classNames[0] || 'event-purple'}" style="margin-bottom:5px; padding:5px; border-radius:4px; color:white;">
+                            ${ev.title}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        document.body.appendChild(popup);
+        popup.querySelector('.close-btn').onclick = () => popup.remove();
+    }
 });
