@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.devlog.project.chatting.dto.ChattingDTO.FollowListDTO;
 import com.devlog.project.chatting.mapper.ChattingMapper;
-import com.devlog.project.chatting.repository.ChattingRepository;
+import com.devlog.project.chatting.repository.ChattingUserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChattingServiceImpl implements ChattingService {
 	
-	private final ChattingRepository chattingRepository;
+	private final ChattingUserRepository chattingUserRepository;
 	private final ChattingMapper chatMapper;
 	
 	
@@ -34,9 +34,12 @@ public class ChattingServiceImpl implements ChattingService {
 	}
 
 	
+	
 	// 개인 채팅방 생성
 	@Override
 	public Long privateCreate(int myMemberNo, int targetMemberNo) {
+		
+		// 1. 기존에 채팅방 있는지 조회
 		
 		
 		
