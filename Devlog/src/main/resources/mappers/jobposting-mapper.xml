@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.devlog.project.jobposting.mapper.JobpostingMapper">
+<mapper namespace="com.devlog.project.board.jobposting.mapper.JobpostingMapper">
 	
+	<select id="selectjoblist" resultType="JobPostingDTO">
+	SELECT POSTING_NO, POSTING_TITLE, APPLY_START, APPLY_END FROM JOB_POSTING
+	JOIN COMPANY_CODE USING(COMPANY_CODE)
+	</select>
 	
 	
 </mapper>

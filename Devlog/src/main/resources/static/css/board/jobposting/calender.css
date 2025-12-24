@@ -80,6 +80,12 @@
       background-color: transparent !important;
     }
 
+    .fc .fc-more-popover .fc-popover-body {
+      overflow-y: auto;
+    }
+
+
+
     /* 팝업 전체 배경 */
     .custom-popup {
       position: fixed;
