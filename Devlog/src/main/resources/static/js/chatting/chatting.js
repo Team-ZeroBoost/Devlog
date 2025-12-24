@@ -1,20 +1,18 @@
 
-const memberNo = 1;
+
 let followList = false;
 
 document.addEventListener('DOMContentLoaded', e => {
 
-    selectChatList(memberNo);
+    selectChatList();
 
 })
 
-function selectChatList(memberNo){
+function selectChatList(){
 
-    fetch('/devtalk/chatList?memberNo=' + memberNo)
+    fetch('/devtalk/chatList')
     .then(resp => resp.text())
     .then(html => {
-        console.log(roomList);
-        console.log(roomList.length);
 
         document.getElementById('roomList').outerHTML = html;
 
@@ -263,14 +261,21 @@ document.getElementById('room-create-btn').addEventListener('click', async e => 
 
     if (chatType === 'private') {
         const result = await createPrivate();
+
+        
         console.log(result); // 서버 응답 확인
+        createRoom.classList.add('hide');
+
+        selectChatList();
+
+        enterChatRoom(result);
         
     }
-
+    
 });
 
 
-
+/* 개인 채팅방 추가 함수 */
 async function createPrivate(){
     
     try {
@@ -290,7 +295,7 @@ async function createPrivate(){
         })
 
         const result = await resp.text();
-        
+
         return result;
 
     } catch(e) {
@@ -304,6 +309,24 @@ async   function createGroup(){
 
 
 
+}
+
+
+// 해당 채팅방 이동 효과
+function enterChatRoom(roomNo) {
+    // 1. UI 선택 효과
+    document
+        .querySelectorAll('.room-item.is-selected')
+        .forEach(el => el.classList.remove('is-selected'));
+
+    const target = document.querySelector(`[data-room-no="${roomNo}"]`);
+    if (!target) return;
+
+    target.classList.add('is-selected');
+
+    // // 2. 실제 채팅방 이동 로직
+    // loadChatRoom(roomNo);      // 메시지 조회
+    // subscribeRoom(roomNo);    // 웹소켓 구독
 }
 
 

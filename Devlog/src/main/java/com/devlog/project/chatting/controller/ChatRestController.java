@@ -28,9 +28,10 @@ public class ChatRestController {
 	
 	// 채팅방 목록 조회
 	@GetMapping("/devtalk/chatList")
-	public String selectChatList(@RequestParam("memberNo") int memberNo
-			, Model model){
+	public String selectChatList(
+			Model model){
 		
+		int memberNo = 1;
 		
 		List<ChattingDTO.ChattingListDTO> chatList = chattingService.selectChatList(memberNo);
 		

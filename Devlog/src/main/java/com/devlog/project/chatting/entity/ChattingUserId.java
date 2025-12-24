@@ -3,10 +3,18 @@ package com.devlog.project.chatting.entity;
 import java.io.Serializable;
 import java.util.Objects;
 
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Embeddable
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChattingUserId implements Serializable {
 	
 	

@@ -2,11 +2,15 @@ package com.devlog.project.chatting.entity;
 
 import java.time.LocalDateTime;
 
+import com.devlog.project.chatting.type.Role;
+import com.devlog.project.chatting.type.YesNo;
 import com.devlog.project.member.model.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -27,7 +31,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder public class ChattingUser {
+@Builder 
+public class ChattingUser {
 	
 	
 	@EmbeddedId
@@ -43,15 +48,18 @@ import lombok.Setter;
 	@JoinColumn(name = "MEMBER_NO")
 	private Member member;
 	
+	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "PINNED_YN", length = 1)
-	private String pinnedYn;
+	private YesNo pinnedYn;
 	
 	
 	@Column(name = "JOIN_DATE", nullable = false)
 	private LocalDateTime joinDate;
 	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "ROLE", length = 30, nullable = false)
-	private String role;
+	private Role role;
 	
 	@Column(name="LAST_READ_NO", nullable = true)
 	private Integer lastReadNo;
@@ -62,7 +70,9 @@ import lombok.Setter;
 	public void prePersist() {
 		this.joinDate = LocalDateTime.now();
 		
-		this.pinnedYn = "N";
+		if(pinnedYn == null)
+			this.pinnedYn = YesNo.N;
+		
 	}
 	
 	
