@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import com.devlog.project.chatting.dto.ChattingDTO;
 import com.devlog.project.chatting.service.ChattingService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,12 +62,12 @@ public class ChatRestController {
 	@PostMapping("/devtalk/create/private")
 	@ResponseBody
 	public Long privateCreate(
-			@RequestBody ChattingDTO.targetMemberNoDTO target
-			// @SessionAttribute 로그인 멤버
+			@RequestBody Long targetMemberNo
 			
 			) {
 		
-		Long targetMemberNo = target.getTargetMemberNo();
+		
+		
 		
 		
 		Long myMemberNo = 1l;

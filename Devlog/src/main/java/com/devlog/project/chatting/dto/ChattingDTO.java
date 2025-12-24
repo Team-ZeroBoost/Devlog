@@ -46,12 +46,7 @@ public class ChattingDTO {
 	}
 	
 	
-	@Getter
-	@Setter
-	@ToString
-	public static class targetMemberNoDTO {
-		private Long targetMemberNo;
-	}
+
 
 
 }

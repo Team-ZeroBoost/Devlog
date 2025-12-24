@@ -285,8 +285,8 @@ async function createPrivate(){
         const resp =  await fetch("/devtalk/create/private",{
         method : "POST",
         headers: {'Content-Type' : 'application/json'},
-        body : JSON.stringify({
-            "targetMemberNo" : targetMemberNo})
+        body : JSON.stringify(
+            targetMemberNo)
         })
 
         const result = await resp.text();
