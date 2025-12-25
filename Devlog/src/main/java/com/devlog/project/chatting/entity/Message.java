@@ -2,11 +2,21 @@ package com.devlog.project.chatting.entity;
 
 import java.time.LocalDateTime;
 
+import com.devlog.project.chatting.chatenums.MsgEnums;
+import com.devlog.project.member.model.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,27 +34,46 @@ import lombok.Setter;
 @Builder
 public class Message {
 	
+	
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Oracle 12c+
     @Column(name = "MESSAGE_NO")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "msg_seq")  
+	@SequenceGenerator(																// 
+	    name = "msg_seq",
+	    sequenceName = "SEQ_MSG_NO",
+	    allocationSize = 1)
     private Long messageNo;
-
-    @Column(name = "CHATTING_ROOM_NO", nullable = false)
-    private Long chattingRoomNo;
-
-    @Column(name = "MEMBER_NO", nullable = false)
-    private Long memberNo;
+	
+	
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "CHATTING_ROOM_NO")
+    private ChatRoom chattingRoom;
+    
+    
+//    @Column(name = "MEMBER_NO", nullable = false)
+//    private Long memberNo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_NO")
+    private Member member;
 
     @Column(name = "SEND_TIME", nullable = false)
     private LocalDateTime sendTime;
-
+    
+    @Enumerated(EnumType.STRING)
     @Column(name = "TYPE", nullable = false, length = 20)
-    private String type; // IMG / SYSTEM / TEXT
+    private MsgEnums.MsgType type; // IMG / SYSTEM / TEXT
 
-    @Column(name = "MESSAGE_CONTENT", length = 3000)
+    @Column(name = "MESSAGE_CONTENT", nullable = true, length = 3000)
     private String messageContent;
-
-    @Column(name = "MESSAGE_STATUS", length = 30)
-    private String messageStatus; // 수정 / 삭제
-
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "MESSAGE_STATUS", nullable = true, length = 30)
+    private MsgEnums.MsgStatus status; // 수정 / 삭제
+    
+    
+    @PrePersist
+    public void prePersist() {
+    	this.sendTime = LocalDateTime.now();
+    }
+    
 }
