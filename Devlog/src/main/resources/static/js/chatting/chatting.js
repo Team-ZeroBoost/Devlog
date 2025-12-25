@@ -1,38 +1,38 @@
 
-const memberNo = 1;
+
+let followList = false;
+
 document.addEventListener('DOMContentLoaded', e => {
 
-    selectChatList(memberNo);
+    selectChatList();
 
 })
 
-function selectChatList(memberNo){
+async function selectChatList(){
 
-    fetch('/devtalk/chatList?memberNo=' + memberNo)
-    .then(resp => resp.text())
-    .then(html => {
-        console.log(roomList);
-        console.log(roomList.length);
+    try {
+        const resp = await fetch('/devtalk/chatList');
+        const html = await resp.text();
 
         document.getElementById('roomList').outerHTML = html;
 
-        
-    })
-    .catch(e => console.log('채팅방 목록 조회 실패', e))
+    } catch(e) {
+        console.log('채팅방 목록 조회 실패', e)
+    } 
 
 }
 
 
 // roomList 컨테이너에 한 번만 이벤트 걸기
 document.addEventListener('click', (e) => {
-  const item = e.target.closest('.room-item');
-  if (!item) return; // room-item이 아닌 곳 클릭이면 무시
+    const item = e.target.closest('.room-item');
+    if (!item) return; // room-item이 아닌 곳 클릭이면 무시
 
-  // 현재 room-list 안의 room-item만 대상으로 선택 해제
-  const container = document.getElementById('roomList');
-  container.querySelectorAll('.room-item').forEach(el => el.classList.remove('is-selected'));
+    // 현재 room-list 안의 room-item만 대상으로 선택 해제
+    const container = document.getElementById('roomList');
+    container.querySelectorAll('.room-item').forEach(el => el.classList.remove('is-selected'));
 
-  item.classList.add('is-selected');
+    item.classList.add('is-selected');
 });
 
 
@@ -49,6 +49,8 @@ function scrollToBottom() {
     messageArea.scrollTop = messageArea.scrollHeight
 }
 
+/* ============================================================================ */
+/* 채팅방 추가 부분 */
 
 /*채팅방 추가 버튼 클릭 시 */
 
@@ -63,14 +65,27 @@ chatAddBtn.addEventListener('click', () => {
             check.checked = false;
         }
     
+    if(followList) return ;
+
+    fetch('/devtalk/followSelect')
+    .then(resp => resp.text())
+    .then(html => {
+        followList = true;
+
+        document.getElementById('chatFollowList').outerHTML = html;
+
+        followCheckbox()
+
+    })
+    .catch(e => console.log('팔로우 조회 실패', e))
     
 });
 
 
 /* 유저 선택 시 */
-const radioCheck = document.getElementsByName('invite')
-const userList = document.getElementsByClassName('select-user-list')[0]
 
+const userList = document.getElementsByClassName('select-user-list')[0]
+const radioCheck = document.getElementsByName('invite')
 /* 개인 그룹 선택 */
 const private = document.querySelector('.private');
 const group = document.querySelector('.group');
@@ -85,6 +100,7 @@ const imagePreview = document.getElementById('roomImagePreview');
 
 let chatType = 'private'
 
+const followListContainer = document.getElementById('chatFollowList');
 
 /* 개인 버튼 클릭 시 */
 private.addEventListener('click', e=>{
@@ -132,60 +148,53 @@ group.addEventListener('click', e=>{
 
 })
 
-// 이미지 미리보기
-imageInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // 확실하지 않음: 파일 용량 제한은 서버 정책에 따라 다름
-    const reader = new FileReader();
-    reader.onload = () => {
-        imagePreview.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-});
 
 
-for (let item of radioCheck) {
+
+function followCheckbox() {
     
-    
-    item.addEventListener("change", e => {
-
+    for (let item of radioCheck) {
         
-
-        const followItem =  e.target.closest('.follow-item');
-        const userName = followItem.querySelector('.name').innerText;
-
-        if(chatType == 'private') {
-            for (let check of radioCheck) {
-            check.checked = false;
-            }
-
-            item.checked = true
-            userList.innerHTML = '';
-
-            addUser(userName, item);
-        }
-
-
-        if(chatType == 'group') {
+        
+        
+        item.addEventListener("change", e => {
+    
             
-            if(item.checked) {
-
-                if(!exist(userName)) {
-                    addUser(userName, item);
+    
+            const followItem =  e.target.closest('.follow-item');
+            const userName = followItem.querySelector('.name').innerText;
+    
+            if(chatType == 'private') {
+                for (let check of radioCheck) {
+                check.checked = false;
                 }
-            } else {
-
-                deleteUser(userName);
+    
+                item.checked = true
+                userList.innerHTML = '';
+    
+                addUser(userName, item);
             }
-
-
-        }
-        
-    })
-
-}    
+    
+    
+            if(chatType == 'group') {
+                
+                if(item.checked) {
+    
+                    if(!exist(userName)) {
+                        addUser(userName, item);
+                    }
+                } else {
+    
+                    deleteUser(userName);
+                }
+    
+    
+            }
+            
+        })
+    
+    }    
+}
 
 
 /* 유저 추가 함수 */
@@ -238,13 +247,192 @@ function deleteUser(userName) {
 }
 
 
+/* 생성버튼 클릭 시 */
+document.getElementById('room-create-btn').addEventListener('click', async e => {
+
+    if (chatType === 'private') {
+        const result = await createPrivate();
+
+        
+        console.log(result); // 서버 응답 확인
+        createRoom.classList.add('hide');
+
+        await selectChatList();
+
+        enterChatRoom(result);
+        
+    }
+
+    if(chatType === 'group') {
+
+        const result = await createGroup();
+
+        console.log(result);
+
+        createRoom.classList.add('hide');
+
+        await selectChatList();
+
+        enterChatRoom(result);
+    }
+    
+});
+
+
+/* 개인 채팅방 추가 함수 */
+async function createPrivate(){
+    
+    try {
+
+    
+        const checked = document.querySelector('input[name="invite"]:checked');
+        if (!checked) return alert('대화할 사용자를 선택하세요.');
+
+        const targetMemberNo = Number(checked.dataset.memberNo);
+        console.log(targetMemberNo)
+
+        const resp =  await fetch("/devtalk/create/private",{
+        method : "POST",
+        headers: {'Content-Type' : 'application/json'},
+        body : JSON.stringify(
+            targetMemberNo)
+        })
+
+        const result = await resp.text();
+
+        return result;
+
+    } catch(e) {
+        console.error(e);
+        alert('채팅방 생성 실패');
+    }
+    
+}
+
+const deleteBtn = document.getElementById('image-delete-btn');
+const defaultImage = imagePreview.src;
+
+// 이미지 미리보기
+imageInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 확실하지 않음: 파일 용량 제한은 서버 정책에 따라 다름
+    const reader = new FileReader();
+    reader.onload = () => {
+        imagePreview.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+deleteBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();   // label 클릭 방지
+
+    imagePreview.src = defaultImage;   // 기본 이미지 복원
+    imageInput.value = "";             
+});
+
+
+/* 그룹 채팅방 추가 함수 */
+async function createGroup(){
+    
+    try{
+
+        const checkedUsers = document.querySelectorAll('input[name="invite"]:checked');
+    
+        if (checkedUsers.length < 2) {
+            alert('그룹 채팅은 최소 2명 이상 선택해야 합니다.');
+            return;
+        }
+    
+        const memberNos = [];
+        for (let user of checkedUsers) {
+    
+            memberNos.push(Number(user.dataset.memberNo));
+        }
+    
+        console.log(memberNos);
+    
+    
+        const roomName = document.getElementById('roomName').value.trim();
+        if (!roomName) {
+            alert('채팅방 이름을 입력하세요.');
+            return;
+        }
+    
+        console.log(roomName);
+    
+        const img = imageInput.files[0];
+    
+        console.log(img);
+    
+        const formData = new FormData();
+        formData.append('roomName', roomName);
+    
+        for (let memberNo of memberNos) {
+            formData.append('memberNo', memberNo);
+        }
+    
+        if(img){
+            
+            formData.append('roomImg', img);
+        }
+    
+        const resp = await fetch('/devtalk/create/group', {
+            method : "POST",
+            body : formData
+        });
+    
+        const roomNo = await resp.text();
+    
+        return roomNo;
+    } catch(e) {
+        console.error(e);
+        alert('채팅방 생성 실패');
+    }
+
+}
+
+/* 
+    FormData
+    - JavaScript의 내장 객체 웹폼의 데이터와 동일한 형식으로 key value 쌍을 쉽게 캡슐화하기 위해 설계
+    - 파일 데이터를 포함하여 텍스트 데이터와 함께 서버로 전송할 수 있도록 데이터 표준화
+
+    -FormData 객체는 append(키, 값) 메서드를 사용하여 필요한 모든 데이터를 추가
+    - 같은 key 값으로 여러개 append 하면 배열처럼 쌓임 
+    - 비동기 요청 보낼때 headers 따로 작성 x 자동으로 설정해줘서 
+    - key 값하고 서버에서 받을 변수명 일치 시키면 편함
+*/
+
+
+// 해당 채팅방 이동 효과
+function enterChatRoom(roomNo) {
+    // 1. UI 선택 효과
+    document
+        .querySelectorAll('.room-item.is-selected')
+        .forEach(el => el.classList.remove('is-selected'));
+
+    const target = document.querySelector(`[data-room-no="${roomNo}"]`);
+    if (!target) return;
+
+    console.log('enterChatRoom : ' + roomNo);
+    target.classList.add('is-selected');
+
+    // // 2. 실제 채팅방 이동 로직
+    // loadChatRoom(roomNo);      // 메시지 조회
+    // subscribeRoom(roomNo);    // 웹소켓 구독
+}
+
+
+
 document.getElementById('room-cancle-btn')?.addEventListener('click', e => {
     
     document.querySelector('.create-room').classList.add('hide')
 })
 
 
-
+/* ======================================================================================================== */
 
 
 
@@ -763,3 +951,17 @@ document.addEventListener('keydown', e => {
         viewerImg.src = '';
     }
 });
+
+
+
+/* =========================================================== */
+/* 채팅방 정보 조회 이름 메세지 목록 회원 등등  */
+
+async function loadChatRoom(roomNo) {
+
+    const html = fetch('/devtalk/')
+
+    
+
+
+}

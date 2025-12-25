@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.devlog.project.chatting.dto.ChattingDTO.ChattingListDTO;
+import com.devlog.project.chatting.dto.ChattingDTO.FollowListDTO;
 
 @Mapper
 public interface ChattingMapper {
@@ -12,5 +13,9 @@ public interface ChattingMapper {
 	
 	// 채팅방 목록 조회
 	List<ChattingListDTO> selectChatList(int memberNo);
+	
+	
+	// 팔로우 회원 목록 조회
+	List<FollowListDTO> selectFollowList(int memberNo);
 
 }
