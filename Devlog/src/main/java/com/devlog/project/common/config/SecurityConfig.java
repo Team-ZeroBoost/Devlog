@@ -71,6 +71,10 @@ public class SecurityConfig {
 	                "/jobposting",
 	                "/job-crawler",
 	                "/error"
+	                ///// PYY API Addition
+	                ,"/dupCheck/**"
+	                ,"/sendEmail/**"
+	                ,"/board/freeboard/**"		                
 	            ).permitAll()
 	            .anyRequest().authenticated()
 	        )

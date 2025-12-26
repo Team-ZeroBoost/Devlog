@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.devlog.project.member.model.dto.MemberLoginRequestDTO;
 import com.devlog.project.member.model.dto.MemberLoginResponseDTO;
 import com.devlog.project.member.model.dto.MemberSignUpRequestDTO;
 import com.devlog.project.member.model.security.CustomUserDetails;
@@ -38,10 +36,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Controller // @Controller: 리턴값을 "뷰이름"으로 해석, @RestController: 리턴값을 HTTP Body(JSON)로 해석 
-			// => ResponseEntity는 자동으로 Body(JSON)이 아님 => @RestController 또는 @Controller + @ResponseBody 이어야함
-@RequestMapping("/member")  // GET and POST 다 처리
-@SessionAttributes("loginMember") // Model에 담은것을 model객체로 Session Scope 에 올리겠다 => BUT, @SessionAttributes는 View를 반환할 때만 동작함 ==>@SessionAttributes + @ResponseBody: 동작 안 함
+@Controller 
+@RequestMapping("/member")  
 @RequiredArgsConstructor 
 public class MemberController {
 
@@ -73,10 +69,9 @@ public class MemberController {
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(
-            @RequestParam("memberEmail") String memberEmail,  // @RequestBody 제거하고, 이거로 Form 데이터 받기(application/x-www-form-urlencoded)
+            @RequestParam("memberEmail") String memberEmail,  
             @RequestParam("memberPw") String memberPw,
             /////
-    		Model model,
             @RequestParam(value="saveId", required=false) String saveId,
 			HttpServletResponse resp,          
 			HttpServletRequest request,
@@ -101,11 +96,6 @@ public class MemberController {
 	                (CustomUserDetails) authentication.getPrincipal();
 	        System.out.println(saveId);
 	        System.out.println("===== 인증 성공 =====");
-	        //log.info("##### userDetails: {}", userDetails); // 
-	        //System.out.println("userDetails 타입: " + userDetails.getClass().getName());
-	        //System.out.println("##### userDetails: ");
-	        //System.out.println(userDetails);
-	        // 상세하게 출력
 	        System.out.println("memberNo: " + userDetails.getMember().getMemberNo());
 	        System.out.println("memberEmail: " + userDetails.getMember().getMemberEmail());
 	        System.out.println("memberNickname: " + userDetails.getMember().getMemberNickname());
@@ -122,16 +112,12 @@ public class MemberController {
 	                );        
 	        
 	        
-	        //log.info("##### response(MemberLoginResponseDTO): {}", response); // 
 	        System.out.println("##### 응답 DTO (MemberLoginResponseDTO): ");
 	        System.out.println(response);  
 	        
 	        // --------------------------------------------------
 			// 로그인 성공 시 response DTO에 로그인회원정보 담겨있다
 			// 1) 세션에 로그인한 회원 정보 추가
-	        
-	        // Model 기반 SessionAttributes 제거 (old loginMember 제거)
-	        //status.setComplete();
 	        
 	        // 세션 고정 공격 방지 + 이전 사용자 정보 제거
 	        HttpSession oldSession = request.getSession(false);
@@ -154,11 +140,8 @@ public class MemberController {
 			// 클라이언트가 어떤 요청을 할 때 쿠키가 첨부될지 경로(주소)를 지정
 			cookie.setPath("/"); // localhost/ 이하의 모든 주소 ex) /, /member/login, /member/logout 등 모든 요청에 쿠키 첨부
 			
-			//System.out.println("saveId and cookie");
-	        //System.out.println(saveId);
-	        //System.out.println(cookie);
 			// 응답 객체(HttpServletResponse)을 이용해서 만들어진 쿠키를 클라이언트에게 전달
-			resp.addCookie(cookie); // @ResponseBody, ResponseEntity, Spring Security 여부와 전혀 상관없이 동작(HTTP 레벨에서의 동작=>쿠키는 Body가 아니라 Header(HTTP Response Header; HTTP 표준 헤더)로 전달)
+			resp.addCookie(cookie); 
 			
 	        return ResponseEntity.ok(response);
     	} catch (BadCredentialsException ex) {
@@ -198,7 +181,7 @@ public class MemberController {
 		status.setComplete(); // @SessionAttributes 제거
 	    logout(request);
 	    System.out.println("###%%%@@@ 로그아웃 성공 (GET)");
-	    //return "redirect:/member/login";
+	    //return "redirect:/member/login"; // 테스트용
 	    return "redirect:/";
 	}
 
