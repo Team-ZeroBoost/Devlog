@@ -4,21 +4,22 @@
 <head>
   <meta charset="UTF-8">
   <title>채용공고 상세페이지</title>
-  <link rel="stylesheet" href="../../../static/css/board/Jobposting/jobpostDetail.css">
+  <link rel="stylesheet" th:href="@{/css/board/Jobposting/jobpostDetail.css}">
 </head>
 
 <body>
+
   <div class="detail_container">
 
     <header class="detail_header">
-      <div class="company_name">㈜ 안랩</div>
-      <div class="posting_title">[안랩] 2025년 12월 신입/경력 채용</div>
+      <div class="company_name" th:text="${job.companyName}"></div>
+      <div class="posting_title" th:text="${job.postingTitle}"></div>
       <div class="header_utils">
-        <button type="button" class="btn_scrap">
-          <span class="icon">📂</span> 스크랩
+        <button type="button" class="btn_scrap" aria-label="스크랩">
+          <span class="scrap-icon"></span>
         </button>
         <button type="button" class="kakao_share">
-          <img src="../../../static/images/board/Jobposting/kakao.png" alt="icon" class="kakao_icon"> 공유하기
+          <img src="@{/images/board/Jobposting/kakao.png}" alt="icon" class="kakao_icon"> 공유하기
         </button>
         <button type="button" class="link_share">
           <span class="icon">🔗</span> 링크복사

@@ -9,4 +9,9 @@
 	</select>
 	
 	
+	<select id="selectDetail" resultType="JobPostingDTO">
+	SELECT * FROM JOB_POSTING
+	JOIN COMPANY_CODE USING(COMPANY_CODE)
+	</select>
+	
 </mapper>

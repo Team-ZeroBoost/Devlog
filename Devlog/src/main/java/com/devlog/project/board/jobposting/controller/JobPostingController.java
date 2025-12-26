@@ -40,6 +40,20 @@ public class JobPostingController {
 	}
 	
 	
+	// 채용공고 상세 이동
+	@GetMapping("/jobposting/{id}")
+	public String jobPostingDetail(
+			@PathVariable Long id,
+			Model model) {
+		
+		JobPostingDTO detail = jobPostingService.selectDetail(id);
+		model.addAttribute("job", detail);
+		
+		return "board/Jobposting/jobposting";
+	}
+	
+	
+	
 	
 	
 	

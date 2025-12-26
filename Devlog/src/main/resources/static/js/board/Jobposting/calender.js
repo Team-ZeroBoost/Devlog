@@ -17,7 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return {
         title: job.postingTitle,
         start: finalDate,
-        // 마감일이 있으면 보라색, 없으면 핑크색 유지
+
+        extendedProps: {
+            jobId: job.jobId
+        },
+
+        // 마감일이 있으면 보라색, 없으면 핑크색
         className: (job.applyEnd && job.applyEnd.includes('채용시')) ? 'event-pink' : 'event-purple'
     };
 });
@@ -27,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'ko',
-        // 현재 날짜가 24일이면 18일 데이터가 잘 보입니다. 
-        // 만약 안 보인다면 initialDate를 직접 지정해볼 수 있습니다.
         // initialDate: '2025-12-01', 
         headerToolbar: { 
             left: 'title', 
@@ -37,7 +40,16 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         dayMaxEvents: 3, 
         contentHeight: 750,
-        events: events
+        events: events,
+
+        eventClick: function(info) {
+            const jobId = info.event.extendedProps.jobId;
+            if(!jobId) return;
+
+
+            // 상세 페이지 이동
+            window.location.href = `/jobposting/${jobId}`;
+        }
     });
 
     calendar.render();
@@ -64,4 +76,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(popup);
         popup.querySelector('.close-btn').onclick = () => popup.remove();
     }
+
+
 });

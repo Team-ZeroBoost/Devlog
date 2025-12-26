@@ -19,7 +19,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 	private JobpostingMapper jobmapper;
 	
 	
-	@Scheduled(cron = "0 3 0 * * *") // 초 분 시 일 월 요일
+	@Scheduled(cron = "0 0 0 * * *") // 초 분 시 일 월 요일
 	public void JobCrawler() {
 		System.out.println(">>> JobCrawler() 메서드 진입 성공!");
 	    try {
@@ -58,5 +58,13 @@ public class JobPostingServiceImpl implements JobPostingService {
 	@Override
 	public List<JobPostingDTO> selectjoblist() {
 		return jobmapper.selectjoblist();
+	}
+
+
+	
+	// 채용공고 상세 이동
+	@Override
+	public JobPostingDTO selectDetail(Long id) {
+		return jobmapper.seletDetail();
 	}
 }
