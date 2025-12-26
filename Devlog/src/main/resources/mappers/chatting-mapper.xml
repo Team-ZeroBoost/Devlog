@@ -41,4 +41,15 @@
 			WHERE CU.MEMBER_NO =${memberNo}
 			ORDER BY PINNED_YN DESC, M.SEND_TIME DESC NULLS LAST
 	</select>
+	
+	
+	
+	<!-- 팔로우 목록 조회 -->
+	<select id="selectFollowList">
+		SELECT MEMBER_NO, PROFILE_IMG, MEMBER_NICKNAME 
+		FROM MEMBER
+		JOIN FOLLOW ON MEMBER_NO = FOLLOWED_ID
+		WHERE FOLLOW_ID = ${memberNo}
+		
+	</select>
 </mapper>

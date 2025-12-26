@@ -1,16 +1,17 @@
-    body {
+    .calendar-body {
       font-family: 'Pretendard', sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: 50px;
+      display: block;
     }
 
+
     .calendar-container {
-      width: 1000px;
+      width: 1200px;
+      margin: 60px auto;
       background: white;
       border-radius: 30px;
-      padding: 40px;
+      margin-top: 100px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      padding: 40px;
     }
 
     .calendar-header {
@@ -35,6 +36,7 @@
       font-weight: 700;
       color: #333;
       border: none !important;
+
     }
 
     .fc-theme-standard .fc-scrollgrid {
@@ -52,6 +54,11 @@
       font-size: 11px !important;
       margin-bottom: 2px !important;
       cursor: pointer;
+      color: black;
+    }
+
+    .fc-h-event .fc-event-title {
+      color: black !important;
     }
 
     /* 오늘 등록 */
@@ -72,6 +79,16 @@
 
     .fc-daygrid-today {
       background-color: transparent !important;
+    }
+
+    .fc .fc-more-popover .fc-popover-body {
+      overflow-y: auto !important;
+    }
+
+    .fc .fc-more-popover .fc-popover-body {
+      max-width: 500px;
+      padding: 10px;
+      max-height: 250px !important;
     }
 
     /* 팝업 전체 배경 */
@@ -145,4 +162,37 @@
       font-weight: bold !important;
       text-decoration: none !important;
       margin-left: 5px;
+    }
+
+    .purple,
+    .pink {
+      border-radius: 20px;
+      width: 90px;
+      height: 30px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .purple {
+      background-color: #E6E0FF;
+    }
+
+    .pink {
+      background-color: #FFE5F0;
+    }
+
+    .fc .fc-button-primary {
+      background-color: #BD83C3;
+      border: none;
     }
