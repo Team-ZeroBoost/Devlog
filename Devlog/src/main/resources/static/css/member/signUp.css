@@ -115,12 +115,14 @@ body {
     border-radius: 4px;
     border: 1px solid #D9D9D9;
     font-size: 24px; /* placeholder 크기 */
-    color:  #D9D9D9;
+    /* color:  #D9D9D9; */
+    color:  #000;
     box-sizing: border-box;
 
 }
 
-.desc {
+/* 'signUp-message' == 'desc' */
+.desc { 
     font-size: 24px;
     color: #000;
     margin-top: 14px;
@@ -132,6 +134,16 @@ body {
     gap: 1px; /* input과 인증번호 버튼간 간격 */
     margin-top: 6px;
 }
+
+/* :focus-within : 내부 input 요소에 포커스가 맞춰졌을 때 */
+.row:focus-within{
+    border-bottom-color: #BD83CE;
+}
+
+/* 메세지 색상 지정 */
+.confirm{ color : green; }
+.error{ color : red; }
+
 
 .btn-gray {
     width: 200px;

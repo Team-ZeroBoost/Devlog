@@ -30,13 +30,13 @@ public class MbMember {
 
     private LocalDateTime mCreateDate;    // M_CREATE_DATE
 
-    private Long subscriptionPrice;      // SUBSCRIPTION_PRICE
+    private Integer subscriptionPrice;      // SUBSCRIPTION_PRICE
     private String myInfoIntro;          // MY_INFO_INTRO
     private String myInfoGit;            // MY_INFO_GIT
     private String myInfoHomepage;       // MY_INFO_HOMEPAGE
 
-    private Long beansAmount;            // BEANS_AMOUNT
-    private Long currentExp;             // CURRENT_EXP
+    private Integer beansAmount;            // BEANS_AMOUNT
+    private Integer currentExp;             // CURRENT_EXP
 
     private Integer memberLevel;         // MEMBER_LEVEL (LV1 ~ LV30)
 
