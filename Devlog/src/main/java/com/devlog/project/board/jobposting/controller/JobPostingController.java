@@ -26,7 +26,7 @@ public class JobPostingController {
 	public String jobposting(
 			Model model) {
 		List<JobPostingDTO> jobcalender = jobPostingService.selectjoblist();
-		System.out.println(jobcalender);
+//		System.out.println(jobcalender);
 		model.addAttribute("jobcalender", jobcalender);
 		
 		return "board/Jobposting/calender";
@@ -48,8 +48,9 @@ public class JobPostingController {
 		
 		JobPostingDTO detail = jobPostingService.selectDetail(id);
 		model.addAttribute("job", detail);
+		System.out.println(detail);
 		
-		return "board/Jobposting/jobposting";
+		return "board/Jobposting/jobpostDetail"; 
 	}
 	
 	

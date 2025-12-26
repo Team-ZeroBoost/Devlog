@@ -16,7 +16,7 @@ public interface JobpostingMapper {
 
 	
 	// 채용공고 상세 이동
-	JobPostingDTO seletDetail();
+	JobPostingDTO selectDetail(Long id);
 
 
 

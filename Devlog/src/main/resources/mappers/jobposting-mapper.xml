@@ -10,8 +10,13 @@
 	
 	
 	<select id="selectDetail" resultType="JobPostingDTO">
-	SELECT * FROM JOB_POSTING
-	JOIN COMPANY_CODE USING(COMPANY_CODE)
+	SELECT
+    J.*,
+    C.*
+	FROM JOB_POSTING J
+	JOIN COMPANY_CODE C
+	  ON J.COMPANY_CODE = C.COMPANY_CODE
+	WHERE J.POSTING_NO = #{id}
 	</select>
 	
 </mapper>

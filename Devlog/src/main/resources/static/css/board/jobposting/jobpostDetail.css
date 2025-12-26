@@ -124,6 +124,7 @@
   display: flex;
   gap: 12px;
   padding-bottom: 5px;
+  justify-content: right;
 }
 
 .header_utils button {
@@ -159,12 +160,12 @@
 
 /* 기본: 빈 북마크 */
 .scrap-icon {
-  background-image: url("/images/common/scrap-empty.svg");
+  background-image: url("/images/common/scrap-empty.png");
 }
 
 /* 스크랩됨 */
 .btn_scrap.active .scrap-icon {
-  background-image: url("/images/common/scrap-filled.svg");
+  background-image: url("/images/common/scrap-filled.png");
 }
 
 

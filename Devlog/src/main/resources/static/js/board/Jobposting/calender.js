@@ -19,8 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
         start: finalDate,
 
         extendedProps: {
-            jobId: job.jobId
+            jobId: job.postingNo
         },
+        
 
         // 마감일이 있으면 보라색, 없으면 핑크색
         className: (job.applyEnd && job.applyEnd.includes('채용시')) ? 'event-pink' : 'event-purple'
@@ -42,13 +43,15 @@ document.addEventListener('DOMContentLoaded', function () {
         contentHeight: 750,
         events: events,
 
-        eventClick: function(info) {
-            const jobId = info.event.extendedProps.jobId;
-            if(!jobId) return;
+            eventClick: function(info) {
+        const jobId = info.event.extendedProps.jobId;
 
+        if (!jobId) {
+            alert("jobId 없음");
+            return;
+        }
 
-            // 상세 페이지 이동
-            window.location.href = `/jobposting/${jobId}`;
+        window.location.href = `/jobposting/${jobId}`;
         }
     });
 

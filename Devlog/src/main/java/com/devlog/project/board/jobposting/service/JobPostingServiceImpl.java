@@ -3,6 +3,7 @@ package com.devlog.project.board.jobposting.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,21 @@ public class JobPostingServiceImpl implements JobPostingService {
 	// 채용공고 상세 이동
 	@Override
 	public JobPostingDTO selectDetail(Long id) {
-		return jobmapper.seletDetail();
+		JobPostingDTO detail = jobmapper.selectDetail(id);
+	    
+	    if (detail != null && detail.getPostingContent() != null) {
+	        String content = detail.getPostingContent();
+	        
+	        // 정규표현식: .png 로 끝나는 지점을 찾되, .png는 포함
+	        String[] urlArray = content.split("(?<=\\.png)");
+	        
+	        List<String> list = new ArrayList<>();
+	        for(String url : urlArray) {
+	            list.add(url.trim());
+	        }
+	        detail.setImageList(list);
+	    }
+	    
+	    return detail;
 	}
 }
