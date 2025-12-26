@@ -139,13 +139,14 @@ body {
   border-radius: 10px;
   /* background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); */
-  background-color: #ffffff;
+  background-color: var(--bg-soft);
   box-shadow: var(--shadow);
 }
 
 .search input {
   width: 320px;
   font-size: 14px;
+  background-color: var(--bg-soft);
 }
 
 .search button img {
@@ -379,6 +380,10 @@ html[data-theme="dark"] .overlay {
   background: rgba(0, 0, 0, 0.6);
 }
 
+html[data-theme="dark"] .signin-btn {
+  color: #ffffff;
+}
+
 /* Light 전용 헤더 */
 html[data-theme="light"] .hd {
   background: linear-gradient(
@@ -415,7 +420,6 @@ html[data-theme="light"] .ft {
 html[data-theme="dark"] .ft {
   background: linear-gradient(
     to bottom,
-    var(--bg) 0%,
     var(--bg-soft) 100%
   );
   color: var(--text-sub);

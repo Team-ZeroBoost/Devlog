@@ -328,6 +328,7 @@ section {
 /* 개별 뉴스 카드 */
 .news-card {
   color: var(--bg-card);
+  background-color: var(--bg-card);
   border-radius: 14px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 20px 24px;
