@@ -74,7 +74,8 @@ public class SecurityConfig {
 	                ///// PYY API Addition
 	                ,"/dupCheck/**"
 	                ,"/sendEmail/**"
-	                ,"/board/freeboard/**"		                
+	                ,"/board/freeboard/**"	
+	                ,"/board/qna/**"	
 	            ).permitAll()
 	            .anyRequest().authenticated()
 	        )
