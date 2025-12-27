@@ -15,9 +15,16 @@ public class ITnewsServiceImpl implements ITnewsService{
 	@Autowired
 	private ITnewsMapper ITnewsmapper;
 	
+	// 뉴스 목록 조회
 	@Override
 	public List<ITnewsDTO> selectITnewsList() {
 		return ITnewsmapper.selectjoblist();
+	}
+
+	// 뉴스 상세 조회
+	@Override
+	public ITnewsDTO selectNewsDetail(int boardNo) {
+		return ITnewsmapper.selectNewsDetail(boardNo);
 	}
 
 }
