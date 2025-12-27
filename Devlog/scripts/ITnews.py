@@ -67,7 +67,7 @@ for name, info in CATEGORIES.items():
         main_sections = soup.select('.item_newsthumb2, .item_mainnews, .cont_thumb')
         category_urls = []
         
-        # 1. 링크 추출 (URL 중복 방지)
+        # 링크 추출 (URL 중복 방지)
         all_links = []
         for section in main_sections:
             all_links.extend(section.find_all('a', href=True))
@@ -83,7 +83,7 @@ for name, info in CATEGORIES.items():
             if len(category_urls) >= 10: # 중복 대비 넉넉히 후보 추출
                 break
 
-        # 2. 실제 기사 내용 수집 (내용/제목 중복 체크)
+        # 실제 기사 내용 수집 (내용/제목 중복 체크)
         count = 0
         for url in category_urls:
             data = get_article_details(url, info["code"])
@@ -96,7 +96,7 @@ for name, info in CATEGORIES.items():
                 print(f"수집 성공: {data['BOARD_TITLE'][:20]}...")
                 count += 1
             
-            if count == 4: # 카테고리당 4개 채우면 종료
+            if count == 2: # 카테고리당 4개 채우면 종료
                 break
             time.sleep(0.3)
             
