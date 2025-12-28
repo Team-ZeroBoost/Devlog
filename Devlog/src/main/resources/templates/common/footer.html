@@ -44,5 +44,15 @@
         </div>
       </div>
     </footer>
+
+    <!-- 알림창 띄우기 -->
+    <script th:inline="javascript"> 
+                            
+        const message = /*[[${message}]]*/ "전달 받은 message";
+
+        if(message != null) alert(message); // message12가 없으면 null값
+
+    </script>
+
 </body>
 </html>
