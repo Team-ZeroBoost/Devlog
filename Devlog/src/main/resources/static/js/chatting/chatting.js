@@ -625,6 +625,16 @@ function bindChatUIEvents() {
 
             // TODO: 채팅방 나가기 비동기 요청
             // leaveChatRoom();
+
+            fetch('/devtalk/roomExit?roomNo=' + Number(currentEditRoomNo))
+            .then(resp=> {
+                if(resp.ok){
+                    location.reload();
+                }
+            }
+
+            )
+            .catch(e => console.error(e))
         });
     }
 }
@@ -1119,12 +1129,17 @@ async function loadChatRoom(roomNo) {
     const html = await resp.text(); 
 
     const chattingArea = document.querySelector('#chatting-space');
-    chattingArea.outerHTML  = html;
+    chattingArea.innerHTML  = html;
 
     afterFuncLoad();
     console.log("roomNo : ",roomNo)
 
-    bindChatSendInputEvents(roomNo)
+
+    bindChatSendInputEvents(roomNo);
+
+
+    // scrollToBottom();
+    
 
     
 
@@ -1139,8 +1154,45 @@ function afterFuncLoad(){
     bindMessageDeleteEvents();
     bindChatUIEvents();
     bindInviteEvents();
-    scrollToBottom();
+    bindSendImage();
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            lockScrollToBottom();
+        });
+    });
 };
+
+function lockScrollToBottom() {
+    const list = document.querySelector(".message-list");
+    if (!list) return;
+
+    let lastHeight = -1;
+    let stableCount = 0;
+
+    function stabilize() {
+        const currentHeight = list.scrollHeight;
+
+        if (currentHeight === lastHeight) {
+            stableCount++;
+        } else {
+            stableCount = 0;
+            lastHeight = currentHeight;
+        }
+
+        list.scrollTop = currentHeight;
+
+        if (stableCount < 6) {
+            requestAnimationFrame(stabilize);
+        }
+    }
+
+    stabilize();
+}
+
+
+
+
 
 function showChatRoomUI() {
     document.querySelector('.room-empty')?.classList.add('display-none');
@@ -1360,6 +1412,10 @@ function onMessageReceived(payload) {
 
         applyModify(msg);
     } else{
+
+        if(msg.type == 'SYSTEM'){
+            alert("확인만");
+        }
         appendMessage(msg);
 
         sendReadSignal(msg.room_no);
@@ -1418,11 +1474,25 @@ function createMyMessage(msg) {
 
     // bubble
     const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    const msgSpan = document.createElement('span');
-    msgSpan.className = 'msg-content'
-    msgSpan.innerText = msg.content;
-    bubble.appendChild(msgSpan);
+    if(msg.type == 'TEXT') {
+        bubble.className = 'bubble';
+        const msgSpan = document.createElement('span');
+        msgSpan.className = 'msg-content'
+        msgSpan.innerText = msg.content;
+        bubble.appendChild(msgSpan);
+
+    } else if(msg.type =='IMG') {
+        bubble.className = 'bubble image';
+        const img = document.createElement('img');
+        img.src = msg.img_path;
+
+        img.onload = () => {
+        scrollToBottom();
+    };
+
+        bubble.appendChild(img);
+    }
+
 
     // reaction badge
     const reaction = document.createElement('div');
@@ -1493,11 +1563,23 @@ function createOtherMessage(msg) {
 
     // bubble
     const bubble = document.createElement('div');
+    if(msg.type == 'TEXT') {
     bubble.className = 'bubble';
     const msgSpan = document.createElement('span');
     msgSpan.className = 'msg-content'
     msgSpan.innerText = msg.content;
     bubble.appendChild(msgSpan);
+        
+    } else if(msg.type =='IMG') {
+        bubble.className = 'bubble image';
+        const img = document.createElement('img');
+        img.src = msg.img_path;
+
+        img.onload = () => {
+        scrollToBottom();
+    };
+        bubble.appendChild(img);
+    }
 
     // reaction badge
     const reaction = document.createElement('div');
@@ -1615,3 +1697,79 @@ searchChat.addEventListener("keydown", e => {
 }); 
 
 
+/* ------------------------------------------------- */
+/* 이미지 전송 */
+
+function bindSendImage(){
+    const imgInput = document.getElementById('chatImg');
+    const imgDiv = document.querySelector('.send-image');
+    const previewArea = document.getElementById('send-image-preview');
+    const textarea = document.getElementById('send-message');
+    const imgDelete = document.getElementById('send-image-delete');
+    const imgSendBtn = document.getElementById('send-btn');
+
+    if(!imgInput) return ;
+
+    imgInput.addEventListener('change' , e => {
+        const file = imgInput.files[0];
+        if(!file) return;
+
+        selectFile = file;
+        imgDiv.classList.remove('display-none');
+        textarea.disabled = true;
+
+        // 이미지 미리보기
+        const reader = new FileReader();
+        reader.onload = () => {
+        previewArea.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+
+    })
+
+    // 선택한 이미지 삭제
+
+    imgDelete.addEventListener('click', e=> {
+        // 파일 초기화
+        imgInput.value = '';
+
+        // ui 복구
+        imgDiv.classList.add('display-none');
+        previewArea.src = '';
+        textarea.disabled = false;
+        textarea.focus();
+    })
+
+    /*  전송 버튼 클릭 시 파일 서버에 전송 */
+    imgSendBtn.addEventListener('click', e => {
+        const totalMember = document.querySelector('.member-counting').innerText;
+        if(!selectFile) return;
+
+        const formData = new FormData;
+        formData.append('img', selectFile);
+        formData.append('roomNo', currentRoomNo);
+        formData.append('totalCount', Number(totalMember));
+        formData.append('memberNo', myNo)
+
+        fetch('/devtalk/send-img', {
+            method :"POST",
+            body : formData
+        })
+        .then(resp => {
+        if(!resp.ok) throw new Error('upload failed');
+        })
+        .catch(err => {
+            console.error('이미지 전송 실패:', err);
+        });
+
+
+        selectFile = null;
+        imgInput.value = '';
+        previewArea.src = '';
+        imgDiv.classList.add('display-none');
+        textarea.disabled = false;
+        textarea.value = '';
+        textarea.focus();
+    })
+
+}

@@ -39,5 +39,9 @@ public interface ChattingService {
 	// 채팅방 참여 회원 조회
 	List<Long> selectUsers(Long roomNo);
 	
+	
+	// 채팅방 나가기
+	void roomExit(Long roomNo, Long memberNo);
+	
 
 }

@@ -14,22 +14,26 @@ import org.apache.ibatis.javassist.bytecode.stackmap.BasicBlock.Catch;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.devlog.project.chatting.chatenums.ChatEnums;
 import com.devlog.project.chatting.chatenums.ChatEnums.RoomType;
+import com.devlog.project.chatting.chatenums.MsgEnums.MsgType;
 import com.devlog.project.chatting.dto.ChattingDTO.FollowListDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.GroupCreateDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.RoomInfoDTO;
 import com.devlog.project.chatting.dto.EmojiDTO;
 import com.devlog.project.chatting.dto.MessageDTO;
+import com.devlog.project.chatting.dto.MessageDTO.systemMessage;
 import com.devlog.project.chatting.dto.ParticipantDTO;
 import com.devlog.project.chatting.dto.ParticipantDTO.ChatListUpdateDTO;
 import com.devlog.project.chatting.entity.ChatRoom;
 import com.devlog.project.chatting.entity.ChattingUser;
 import com.devlog.project.chatting.entity.ChattingUserId;
+import com.devlog.project.chatting.entity.Message;
 import com.devlog.project.chatting.mapper.ChattingMapper;
 import com.devlog.project.chatting.repository.ChatRoomRepository;
 import com.devlog.project.chatting.repository.ChattingUserRepository;
@@ -57,6 +61,9 @@ public class ChattingServiceImpl implements ChattingService {
 	
 	private final MessageRepository messageRepository;
 	private final EmojiRepository emojiRepository;
+	
+	
+	private final SimpMessagingTemplate template;
 	
 	
 	@Value("${my.chatprofile.location}")
@@ -342,6 +349,58 @@ public class ChattingServiceImpl implements ChattingService {
 	public List<Long> selectUsers(Long roomNo) {
 		
 		return chattingUserRepository.selectUsers(roomNo);
+	}
+
+	
+	
+	// 채팅방 나가기
+	@Override
+	@Transactional
+	public void roomExit(Long roomNo, Long memberNo) {
+		
+		ChattingUserId id = new ChattingUserId(roomNo, memberNo);
+		
+		// 아이디 존재하는지 확인 존재하지 않으면 종료
+		if (!chattingUserRepository.existsById(id)) {
+	        return;
+	    }
+		
+		ChatRoom room = roomRepository.findById(roomNo)
+				.orElseThrow();
+		
+		Member admin = memberRepository.findById(0l)
+					.orElseThrow();
+		
+		// 1. 사용자 닉네임 조회
+		Member member = memberRepository.findById(memberNo)
+				.orElseThrow();
+		String memberNickname = member.getMemberNickname();
+		
+		// 2. 시스템 메세지 저장
+		Message message = Message.builder()
+				.chattingRoom(room)
+				.messageContent(memberNickname +"님이 나갔습니다.")
+				.type(MsgType.SYSTEM)
+				.member(admin)
+				.build();
+		
+		messageRepository.save(message);
+		
+		// 3. 채팅방 나가기
+		chattingUserRepository.deleteById(id);
+		
+		MessageDTO.systemMessage system = systemMessage.builder()
+										.content(message.getMessageContent())
+										.type(message.getType())
+										.build();
+		
+		template.convertAndSend(
+				"/topic/room/" + room.getRoomNo(),
+				system
+				);
+		
+		
+		
 	}
 
 	

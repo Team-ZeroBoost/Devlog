@@ -3,6 +3,8 @@ package com.devlog.project.chatting.dto;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.devlog.project.chatting.chatenums.MsgEnums;
 import com.devlog.project.chatting.chatenums.MsgEnums.MsgStatus;
 import com.devlog.project.chatting.entity.Message;
@@ -103,8 +105,10 @@ public class MessageDTO {
 		private LocalDateTime sendtime;
 		private Long messageNo;
 		private String profileImg;
+		private MsgEnums.MsgType type;
 		
 		private int unreadCount;
+		private String imgPath;
 		
 		
 		
@@ -118,6 +122,7 @@ public class MessageDTO {
 					.sendtime(m.getSendTime())
 					.messageNo(m.getMessageNo())
 					.profileImg(m.getMember().getProfileImg())
+					.type(m.getType())
 					.build();
 			
 		}
@@ -162,4 +167,30 @@ public class MessageDTO {
 		private String content;
 	}
 	
+	
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ImageRequest {
+		
+		private Long roomNo;
+		private MultipartFile img;
+		private Long memberNo;
+		private int totalCount;
+		
+	}
+	
+	
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Builder
+	public static class systemMessage {
+		private String content;
+		private MsgEnums.MsgType type;
+	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -128,6 +129,21 @@ public class ChatRestController {
 		
 		return "chatting/chatting ::#chatting-space";
 		
+	}
+	
+	
+	// 채팅방 나가기
+	@GetMapping("/devtalk/roomExit")
+	public ResponseEntity<Void> roomExit(
+			@RequestParam("roomNo") Long roomNo,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
+			){
+		
+		chattingService.roomExit(roomNo, loginMember.getMemberNo());
+		
+		
+		
+		return ResponseEntity.ok().build();
 	}
 	
 	

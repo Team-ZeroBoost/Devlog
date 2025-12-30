@@ -1,11 +1,13 @@
 package com.devlog.project.chatting.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -83,8 +85,8 @@ public class MessageController {
 		
 		
 		List<Long> memberNos = chatService.selectUsers(res.getRoomNo());
-		
 		log.info("회원 번호 조회 결과 : {}", memberNos);
+		
 		
 		for (Long memberNo : memberNos) {
 			
@@ -129,6 +131,58 @@ public class MessageController {
 		log.info("수정 파라미터 확인 : {}", edit);
 		
 		service.editMessage(edit);
+		
+	}
+	
+	
+	
+	// 이미지 전송
+	@PostMapping("/devtalk/send-img")
+	public ResponseEntity<Void> sendImage(
+			@ModelAttribute MessageDTO.ImageRequest dto
+			) throws IllegalStateException, IOException {
+		
+		
+
+		System.out.println("방 번호, 회원 번호 확인 : " + dto.getMemberNo() + dto.getRoomNo());
+		
+		ChatMessageResponse res = service.sendImg(dto);
+		
+		
+		// unread 계산
+		int totalViewers = dto.getTotalCount();
+		int onlineViewers = roomViewers.getOrDefault(dto.getRoomNo(), Set.of()).size();
+		res.setUnreadCount(totalViewers - onlineViewers);
+		
+		templete.convertAndSend(
+		        "/topic/room/" + res.getRoomNo(),
+		        res
+		);
+		
+		
+		List<Long> memberNos = chatService.selectUsers(res.getRoomNo());
+		log.info("회원 번호 조회 결과 : {}", memberNos);
+		
+		
+		for (Long memberNo : memberNos) {
+
+		    ChatListUpdateDTO updateDto = new ChatListUpdateDTO();
+
+		    updateDto.setLastMessage(res.getContent());
+		    updateDto.setSendtime(res.getSendtime());
+		    updateDto.setRoomNo(res.getRoomNo());
+		    updateDto.setUnreadCount(service.countUnreadMsg(memberNo, res.getRoomNo()));
+
+		    log.info("채팅방 업데이트용 DTO 확인 : {}", updateDto);
+		    
+		    templete.convertAndSend(
+		            "/topic/chat-list/" + memberNo,
+		            updateDto
+		    );
+		}
+		
+		
+		return ResponseEntity.ok().build();
 		
 	}
 

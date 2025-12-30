@@ -455,7 +455,7 @@ input[name="memberName"] {
 
 .bubble.image {
     padding: 0;                 
-    background-color: transparent;
+    background-color: white;
     border-radius: 12px;
     overflow: hidden;           
 }
@@ -478,6 +478,29 @@ input[name="memberName"] {
 
 .send-area {
     justify-content: space-evenly;
+    position: relative;
+}
+
+/* 이미지 전송 */
+.send-image {
+    position: absolute;
+    bottom: 100%;
+    left: 35px;
+    align-items: start;
+    margin-bottom: 10px;
+
+}
+
+#send-image-delete:hover{
+    cursor: pointer;
+}
+
+
+#send-image-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15) ;
 }
 
 .send-area img {

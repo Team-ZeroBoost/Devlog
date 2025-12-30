@@ -1,19 +1,29 @@
 package com.devlog.project.chatting.service;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.devlog.project.chatting.chatenums.MsgEnums;
+import com.devlog.project.chatting.chatenums.MsgEnums.MsgType;
 import com.devlog.project.chatting.dto.MessageDTO;
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessage;
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessageResponse;
+import com.devlog.project.chatting.dto.MessageDTO.ImageRequest;
 import com.devlog.project.chatting.dto.MessageDTO.MessageEdit;
 import com.devlog.project.chatting.dto.MessageDTO.MessageEditResp;
 import com.devlog.project.chatting.entity.ChatRoom;
 import com.devlog.project.chatting.entity.Message;
+import com.devlog.project.chatting.entity.MessageImage;
 import com.devlog.project.chatting.repository.ChatRoomRepository;
+import com.devlog.project.chatting.repository.MessageImageRepository;
 import com.devlog.project.chatting.repository.MessageRepository;
+import com.devlog.project.common.utility.Util;
 import com.devlog.project.member.model.entity.Member;
 import com.devlog.project.member.model.repository.MemberRepository;
 
@@ -29,6 +39,14 @@ public class MessageServiceImpl implements MessageService {
 	private final MessageRepository msgRepository;
 	private final MemberRepository memberRepository;
 	private final SimpMessagingTemplate template;
+	private final MessageImageRepository msgImageRepository;
+	
+	
+	@Value("${my.chatMessage.location}")
+	private String filePath;
+	
+	@Value("${my.chatMessage.webpath}")
+	private String webPath;
 	
 	// 메세지 삽입
 	@Override
@@ -88,6 +106,70 @@ public class MessageServiceImpl implements MessageService {
 				"/topic/room/" + message.getChattingRoom().getRoomNo(),
 				resp
 				);
+		
+	}
+
+	
+	
+	// 이미지 저장
+	@Override
+	@Transactional
+	public ChatMessageResponse sendImg(ImageRequest dto) throws IllegalStateException, IOException {
+		
+		
+		
+		ChatRoom room = roomRepository.findById(dto.getRoomNo())
+				.orElseThrow();
+		
+		Member member = memberRepository.findById(dto.getMemberNo())
+				.orElseThrow();
+		
+		// 메세지 삽입
+		Message msg = Message.builder()
+				.chattingRoom(room)
+				.member(member)
+				.messageContent("사진")
+				.type(MsgType.IMG)
+				.build();
+		msgRepository.save(msg);
+		
+		// 이미지 저장 
+		MultipartFile img =  dto.getImg();
+		
+		String rename = Util.fileRename(img.getOriginalFilename());
+		
+		String imgPath = webPath + rename;
+		
+		// 해당 경로에 폴더 없으면 생성
+		File dir = new File(filePath);
+		if (!dir.exists()) {
+		    boolean created = dir.mkdirs();
+		    if (!created) {
+		        throw new IOException("업로드 디렉토리 생성 실패: " + filePath);
+		    }
+		}
+		
+		File dest = new File(dir, rename);
+		
+		img.transferTo(dest);
+		
+		
+		
+		
+		
+		// 메세지 이미지 삽입
+		MessageImage msgImage = MessageImage.builder()
+								.message(msg)
+								.imgPath(imgPath)
+								.original(img.getOriginalFilename())
+								.rename(rename)
+								.build();
+		msgImageRepository.save(msgImage);
+		
+		ChatMessageResponse res = MessageDTO.ChatMessageResponse.toDto(msg);
+		res.setImgPath(imgPath);
+		
+		return res;
 		
 	}
 

@@ -44,7 +44,7 @@ public class DBConfig {
     public SqlSessionTemplate sqlSessionTemplate(
             SqlSessionFactory sqlSessionFactory
     ) {
-        return new SqlSessionTemplate(sqlSessionFactory);6
+        return new SqlSessionTemplate(sqlSessionFactory);
     }
 }
 

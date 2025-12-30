@@ -449,7 +449,7 @@
                                     <!-- type = img -->
                                     <th:block th:if="${msg.type == 'IMG'}">
                                         <div class="bubble image">
-                                            <img th:src="${msg.imgPath}">
+                                            <img th:src="${msg.imgPath}" loading="lazy">
                                         </div>
 
                                         
@@ -506,6 +506,10 @@
 
                     <!-- 입력창 -->                    
                     <div class="send-area flex">
+                        <div class="display-none send-image flex">
+                            <img id="send-image-preview" src="" alt="">
+                            <span id="send-image-delete" class="fw-600 fs-14">x</span>
+                        </div>
 
                         <textarea id="send-message"
                                 name="messageContent"
