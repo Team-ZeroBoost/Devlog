@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.devlog.project.pay.dto.PayDTO;
 import com.devlog.project.pay.mapper.PayMapper;
@@ -30,10 +31,20 @@ public class PayServiceImpl implements PayService {
 	}
 
 
-
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int insertPayment(PayDTO payment) {
+		// 결제 정보 저장
+		int result = paymapper.insertPayment(payment);
+		
+		if(result > 0) {
+			paymapper.insertHistory(payment);
+			paymapper.updateMemberBeans(payment);
+		}
 		return paymapper.insertPayment(payment);
 	}
+	
+	
+	
 	
 }

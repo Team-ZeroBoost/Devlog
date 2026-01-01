@@ -35,31 +35,51 @@
 	    ORDER BY H.BEANS_HISTORY DESC
 	</select>
 	
-	<!-- 결제 정보 저장 -->
-	<insert id = "insertPayment" parameterType="PayDTO">
-		INSERT INTO COFFEE_BEANS_PAY (
-		    BEANS_PAY_NO,
-		    MEMBER_NO,
-		    PAYMENT_ID,
-		    PAY_METHOD,
-		    PRICE,
-		    PAY_DATE,
-		    USED_AMOUNT,
-		    PAY_STATUS
-			) VALUES (
-			    SEQ_PAY_NO.NEXTVAL,
-			    #{memberNo},
-			    #{paymentId},
-			    #{payMethod},
-			    #{price},
-			    SYSDATE,
-			    #{usedAmount},
-			    1
-			)	
-
+	<!-- 결제 정보 저장 -->	
+	<insert id="insertPayment" parameterType="PayDTO">
+	    <selectKey keyProperty="beansPayNo" resultType="_int" order="BEFORE">
+	        SELECT SEQ_PAY_NO.NEXTVAL FROM DUAL
+	    </selectKey>
+	    
+	    INSERT INTO COFFEE_BEANS_PAY (
+	        BEANS_PAY_NO, 
+	        MEMBER_NO, 
+	        PAYMENT_ID, 
+	        PAY_METHOD, 
+	        PRICE, 
+	        PAY_DATE, 
+	        USED_AMOUNT, 
+	        PAY_STATUS
+	    ) VALUES (
+	        #{beansPayNo}, 
+	        #{memberNo}, 
+	        #{paymentId}, 
+	        #{payMethod}, 
+	        #{price}, 
+	        SYSDATE, 
+	        0, 
+	        1
+	    )
+	</insert>
+		
+	<insert id="insertHistory">
+	    INSERT INTO COFFEE_BEANS_HISTORY (
+	        BEANS_HISTORY, 
+	        MEMBER_NO, 
+	        PAY_AMOUNT, 
+	        TRADE_NO
+	    ) VALUES (
+	        SEQ_HISTORY_NO.NEXTVAL, 
+	        #{memberNo}, 
+	        #{price}, 
+	        NULL  )
 	</insert>
 	
-	
+	<update id="updateMemberBeans">
+	    UPDATE MEMBER 
+	    SET BEANS_AMOUNT = BEANS_AMOUNT + #{price}
+	    WHERE MEMBER_NO = #{memberNo}
+	</update>
 	
 
 
