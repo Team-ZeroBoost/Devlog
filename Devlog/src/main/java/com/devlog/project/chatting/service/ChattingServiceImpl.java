@@ -5,25 +5,42 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.ibatis.javassist.bytecode.stackmap.BasicBlock.Catch;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.devlog.project.chatting.chatenums.ChatEnums;
+import com.devlog.project.chatting.chatenums.ChatEnums.RoomType;
+import com.devlog.project.chatting.chatenums.MsgEnums.MsgType;
 import com.devlog.project.chatting.dto.ChattingDTO.FollowListDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.GroupCreateDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.RoomInfoDTO;
+import com.devlog.project.chatting.dto.EmojiDTO;
+import com.devlog.project.chatting.dto.MessageDTO;
+import com.devlog.project.chatting.dto.MessageDTO.systemMessage;
 import com.devlog.project.chatting.dto.ParticipantDTO;
+import com.devlog.project.chatting.dto.ParticipantDTO.ChatListUpdateDTO;
 import com.devlog.project.chatting.entity.ChatRoom;
 import com.devlog.project.chatting.entity.ChattingUser;
 import com.devlog.project.chatting.entity.ChattingUserId;
+import com.devlog.project.chatting.entity.Message;
 import com.devlog.project.chatting.mapper.ChattingMapper;
 import com.devlog.project.chatting.repository.ChatRoomRepository;
 import com.devlog.project.chatting.repository.ChattingUserRepository;
+import com.devlog.project.chatting.repository.MessageEmojiRepository;
+import com.devlog.project.chatting.repository.MessageRepository;
 import com.devlog.project.common.utility.Util;
 import com.devlog.project.member.model.entity.Member;
 import com.devlog.project.member.model.repository.MemberRepository;
@@ -35,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
+@PropertySource("classpath:/config.properties")
 public class ChattingServiceImpl implements ChattingService {
 
 	private final ChattingUserRepository chattingUserRepository;
@@ -42,23 +60,41 @@ public class ChattingServiceImpl implements ChattingService {
 
 	private final ChattingMapper chatMapper;
 	private final MemberRepository memberRepository;
-
-
-	String filePath = "C:/workspace/Devlog-Project/Devlog/src/main/resources/static/images/chatprofile/";
-	String webPath = "/images/chatprofile/";
+	
+	private final MessageRepository messageRepository;
+	private final MessageEmojiRepository emojiRepository;
+	
+	
+	private final SimpMessagingTemplate template;
+	
+	
+	@Value("${my.chatprofile.location}")
+	private String filePath;
+	
+	@Value("${my.chatprofile.webpath}")
+	private String webPath;
 
 	// 채팅방 목록 조회
 	@Override
-	public List<com.devlog.project.chatting.dto.ChattingDTO.ChattingListDTO> selectChatList(int memberNo) {
+	public List<com.devlog.project.chatting.dto.ChattingDTO.ChattingListDTO> selectChatList(Long memberNo, String query) {
+		
+		log.info("query param = [{}]", query);
 
-		return chatMapper.selectChatList(memberNo);
+		
+		if (query == null || query.trim().isEmpty() || "null".equalsIgnoreCase(query)) {
+		    return chatMapper.selectChatList(memberNo);
+		} else {
+		    return chatMapper.selectQueryChatList(memberNo, query.trim());
+		}	
+	
 	}
 
-
+	
 	// 팔로우 목록 조회
 	@Override
-	public List<FollowListDTO> selectFollowList(int memberNo) {
-		return chatMapper.selectFollowList(memberNo);
+	public List<FollowListDTO> selectFollowList(Long memberNo,  Long roomNo) {
+		
+		return chatMapper.selectFollowList(memberNo, roomNo);
 	}
 
 
@@ -102,7 +138,7 @@ public class ChattingServiceImpl implements ChattingService {
 							.chatUserId(new ChattingUserId())	
 							.chattingRoom(roomRef)   // @MapsId("roomNo")
 							.member(memberRef)       // @MapsId("memberNo")
-							.role(memberNo.equals(myMemberNo) ? ChatEnums.Role.OWNER : ChatEnums.Role.MEMBER)
+							.role(ChatEnums.Role.MEMBER)
 							.build();
 				})
 				.toList();
@@ -209,31 +245,239 @@ public class ChattingServiceImpl implements ChattingService {
 	
 	// 채팅방 정보 조회
 	@Override
-	public RoomInfoDTO roomInfoLoad(Long roomNo) {
+	public RoomInfoDTO roomInfoLoad(Long roomNo, Long memberNo) {
 		
 		RoomInfoDTO roomInfo = new RoomInfoDTO();
+		
+		
 		
 		// 1. 채팅방 정보 조회
 		ChatRoom room = roomRepository.findById(roomNo)
 				.orElseThrow();
 		
-		roomInfo.setRoomName(room.getChattingRoomName());
-		roomInfo.setRoomProfile(room.getRoomImg());
+		if(room.getRoomType() == RoomType.GROUP) {
+			roomInfo.setRoomName(room.getChattingRoomName());
+			roomInfo.setRoomProfile(room.getRoomImg());
+		}else {
+			ChattingUser opponent = chattingUserRepository.findOpponent(roomNo, memberNo);
+			
+			Member opponentMember = opponent.getMember();
+			roomInfo.setRoomName(opponentMember.getMemberNickname());
+			roomInfo.setRoomProfile(opponentMember.getProfileImg());
+		}
+		
 		
 		
 		// 2. 참여 회원 목록
 		List<ParticipantDTO> users = chattingUserRepository.findByParticipants(roomNo);
 		
-		log.info("참여회원 목록 조회 결과 : {}", users);
+		roomInfo.setParticipantCount(users.size());
+		// 3. 메세지 목록 조회
+		// List<MessageDTO> messageList = 
+		List<MessageDTO> message = messageRepository.findByMessageList(roomNo, memberNo);
 		
-		return null;
+		
+		
+		// 3-1 메세지에 달린 이모지 조회
+		// 메세지 번호들 꺼내오기
+		List<Long> messageNos = message.stream()
+					.map(MessageDTO::getMessageNo)
+					.toList();
+		
+		List<EmojiDTO> emojiCount = emojiRepository.findEmojiCount(messageNos);
+		
+		
+		Map<Long, Map<String, Long>> reactionMap = new HashMap<>();
+		
+		for (EmojiDTO emojiDTO : emojiCount) {
+			
+			Long messageNo = emojiDTO.getMessageNo();
+			String emoji = emojiDTO.getEmoji();
+			Long count = emojiDTO.getCount();
+			
+			if(!reactionMap.containsKey(messageNo)) {
+				reactionMap.put(messageNo, new LinkedHashMap<>());
+			}
+			// 4 : {❤️ : 1, 😠 : 1}
+			
+			Map<String, Long> emojiMap = reactionMap.get(messageNo);
+			
+			emojiMap.put(emoji, count);
+		}
+		
+		// 메세지 dto에 추가
+		for (MessageDTO msg : message) {
+			Long msgNo = msg.getMessageNo();
+			
+			Map<String, Long> reactions;
+			
+			if(reactionMap.containsKey(msgNo)) {
+				
+				reactions = reactionMap.get(msgNo);
+			}else {
+				reactions = new HashMap<>();
+			}
+			// ❤️ : 1, 😠 : 1}
+			msg.setReactions(reactions);
+			
+		}
+		
+		
+		roomInfo.setUsers(users);
+		roomInfo.setMessageList(message);
+		
+		// 최종 확인
+		log.info("최종 조회 결과 : {}", roomInfo);
+		
+		return roomInfo;
+	}
+
+	
+	
+	// 마지막으로 읽은 메세지 업데이트
+	@Override
+	@Transactional
+	public void updateLastRead(Long roomNo, Long memberNo) {
+		
+		
+		log.info("roomNo : {}", roomNo);
+		log.info("memberNo : {}", memberNo);
+		
+		chattingUserRepository.updateLastReadMessageNo(roomNo, memberNo);
 	}
 
 
+	
+	
+	
+	// 채팅방 참여회원 번호 조회
+	@Override
+	public List<Long> selectUsers(Long roomNo) {
+		
+		return chattingUserRepository.selectUsers(roomNo);
+	}
 
+	
+	
+	// 채팅방 나가기
+	@Override
+	@Transactional
+	public void roomExit(Long roomNo, Long memberNo) {
+		
+		ChattingUserId id = new ChattingUserId(roomNo, memberNo);
+		
+		System.out.println("복합키 확인 id : " + id); 
+		
+		// 아이디 존재하는지 확인 존재하지 않으면 종료
+		if (!chattingUserRepository.existsById(id)) {
+	        return;
+	    }
+		
+		
+		ChatRoom room = roomRepository.findById(roomNo)
+				.orElseThrow();
+		
+		Member admin = memberRepository.findById(0l)
+					.orElseThrow();
+		
+		// 1. 사용자 닉네임 조회
+		Member member = memberRepository.findById(memberNo)
+				.orElseThrow();
+		String memberNickname = member.getMemberNickname();
+		
+		// 2. 시스템 메세지 저장
+		Message message = Message.builder()
+				.chattingRoom(room)
+				.messageContent(memberNickname +"님이 나갔습니다.")
+				.type(MsgType.SYSTEM)
+				.member(admin)
+				.build();
+		
+		messageRepository.save(message);
+		
+		// 3. 채팅방 나가기
+		chattingUserRepository.deleteById(id);
+		
+		MessageDTO.systemMessage system = systemMessage.builder()
+										.content(message.getMessageContent())
+										.type(message.getType())
+										.build();
+		
+		template.convertAndSend(
+				"/topic/room/" + room.getRoomNo(),
+				system
+				);
+		
+		
+		
+	}
 
+	
+	// 유저 초대
+	@Override
+	@Transactional
+	public void userInvite(Map<String, Object> paramMap) {
+		
+		List<?> memberNos = (List<?>) paramMap.get("member_no");
+		
+		Long roomNo = ((Number) paramMap.get("room_no")).longValue();
+		
+		ChatRoom room = roomRepository.findById(roomNo)
+						.orElseThrow();
+		
+		Integer LastMessageNo = messageRepository.selectLastMessage(roomNo);
+		
+		List<String> nicknames = new ArrayList<>();
+		
+		for (Object no : memberNos) {
+			
+			Long memberNo = ((Number) no).longValue();
+			
+			Member member = memberRepository.findById(memberNo)
+							.orElseThrow();
+			
+			nicknames.add(member.getMemberNickname()+"님");
+			
+			ChattingUser user = ChattingUser.builder()
+								.chatUserId(new ChattingUserId())
+								.chattingRoom(room)
+								.member(member)
+								.role(ChatEnums.Role.MEMBER)
+								.lastReadNo(LastMessageNo)
+								.build();
+			
+			
+			chattingUserRepository.save(user);
+			
+		}
+		
+		String nicknameList = String.join(", ", nicknames);
+		
+		Member admin = memberRepository.findById(0l).orElseThrow();
+		
+		Message message = Message.builder()
+							.chattingRoom(room)
+							.member(admin)
+							.messageContent(nicknameList+"이 초대되었습니다.")
+							.type(MsgType.SYSTEM)
+							.build();
+		
+		messageRepository.save(message);
+		
+		
+	}
 
-
+	
+	// 방장 여부
+	@Override
+	public boolean isOwner(Long roomNo, Long memberNo) {
+		
+		
+		return chattingUserRepository
+	            .existsByChatUserIdRoomNoAndChatUserIdMemberNoAndRole(
+	                    roomNo, memberNo, ChatEnums.Role.OWNER
+	                );
+	}
 
 
 

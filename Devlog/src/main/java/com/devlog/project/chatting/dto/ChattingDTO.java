@@ -30,6 +30,7 @@ public class ChattingDTO {
 	    private String roomImg;
 	    private String lastMessage;
 	    private LocalDateTime lastMessageAt;
+	    private String formatTime;
 	    private Long unreadCount;
 
 
@@ -68,6 +69,7 @@ public class ChattingDTO {
 		private String roomName; // 방이름
 		private int participantCount; // 참여인원
 		private String roomProfile; // 채팅방 프로필
+		
 		
 		List<MessageDTO> messageList;
 		

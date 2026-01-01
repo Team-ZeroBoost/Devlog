@@ -2,19 +2,21 @@ package com.devlog.project.chatting.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.devlog.project.chatting.dto.ChattingDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.GroupCreateDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.RoomInfoDTO;
+import com.devlog.project.chatting.dto.ParticipantDTO;
 
 public interface ChattingService {
 	
 	
 	// 채팅방 목록 조회
-	List<ChattingDTO.ChattingListDTO> selectChatList(int memberNo);
+	List<ChattingDTO.ChattingListDTO> selectChatList(Long memberNo, String query);
 	
 	// 팔로우 목록 조회
-	List<ChattingDTO.FollowListDTO> selectFollowList(int memberNo);
+	List<ChattingDTO.FollowListDTO> selectFollowList(Long long1, Long roomNo);
 	
 	
 	// 개인 채팅방 생성
@@ -26,7 +28,28 @@ public interface ChattingService {
 	
 	
 	// 채팅방 정보 조회
-	RoomInfoDTO roomInfoLoad(Long roomNo);
+	RoomInfoDTO roomInfoLoad(Long roomNo, Long memberNo);
+	
+	
+	// 채팅방 마지막 메세지 업데이트
+	void updateLastRead(Long roomNo, Long memberNo);
+	
+	
+	
+	
+	// 채팅방 참여 회원 조회
+	List<Long> selectUsers(Long roomNo);
+	
+	
+	// 채팅방 나가기
+	void roomExit(Long roomNo, Long memberNo);
+	
+	
+	// 유저 초대
+	void userInvite(Map<String, Object> paramMap);
+	
+	// 채팅방 주인 여부
+	boolean isOwner(Long roomNo, Long memberNo);
 	
 
 }
