@@ -1,6 +1,7 @@
 package com.devlog.project.chatting.service;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessage;
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessageResponse;
@@ -26,5 +27,9 @@ public interface MessageService {
 	
 	// 메세지 삭제
 	void deleteMessage(Long messageNo);
+	
+	
+	// 메세지 공감 삽입
+	void sendEmoji(Map<String, Object> paramMap);
 
 }

@@ -51,6 +51,6 @@ public class Util {
 		        return time.format(DateTimeFormatter.ofPattern("HH:mm"));
 		    }
 
-		    return time.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+		    return time.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
 		}
 }

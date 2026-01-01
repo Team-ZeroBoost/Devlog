@@ -333,7 +333,7 @@
 
                         <div class="member-panel-title">
                             <span class="team-name" th:text="${roomInfo.roomName}">Zero-Boost</span>
-                            <img class="edit-icon" id="team-name-change" th:src="@{/images/chatting/edit.svg}">
+                            <img th:if="${isOwner}" class="edit-icon" id="team-name-change" th:src="@{/images/chatting/edit.svg}">
                         </div>
 
                         <div class="member-section">
@@ -341,7 +341,7 @@
                                 <span class="member-label">멤버</span>
 
                                 <!-- 멤버 초대 버튼 -->
-                                <img id="invite-btn"
+                                <img th:if="${isOwner}" id="invite-btn"
                                     th:src="@{/images/chatting/invite-user.svg}">
                             </div>
 
@@ -488,12 +488,12 @@
                                     </ul>
 
                                     <div class="emoji-area flex display-none">
-                                        <span>❤️</span>
-                                        <span>👍</span>
-                                        <span>😀</span>
-                                        <span>😂</span>
-                                        <span>😮</span>
-                                        <span>😡</span>
+                                        <span data-emoji-code="1">❤️</span>
+                                        <span data-emoji-code="2">👍</span>
+                                        <span data-emoji-code="3">😀</span>
+                                        <span data-emoji-code="4">😂</span>
+                                        <span data-emoji-code="5">😮</span>
+                                        <span data-emoji-code="6">😡</span>
                                     </div>
                                 </th:block>
 

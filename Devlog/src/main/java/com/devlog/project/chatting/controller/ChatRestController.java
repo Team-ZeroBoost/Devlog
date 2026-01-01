@@ -40,7 +40,7 @@ public class ChatRestController {
 			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember,
 			@RequestParam String query){
 		
-		System.out.println("검색어 확인 : " + query);
+		// System.out.println("검색어 확인 : " + query);
 		
 		
 		List<ChattingDTO.ChattingListDTO> chatList = chattingService.selectChatList(loginMember.getMemberNo(), query);
@@ -50,7 +50,7 @@ public class ChatRestController {
 			
 		}
 		
-		log.info("chatList = {}", chatList);
+		// log.info("chatList = {}", chatList);
 		
 		model.addAttribute("chatList", chatList);
 		
@@ -67,11 +67,11 @@ public class ChatRestController {
 			Model model
 			) {
 		
-		System.out.println("팔로우 목록 조회 roomNo 확인 : " + roomNo);
+		// System.out.println("팔로우 목록 조회 roomNo 확인 : " + roomNo);
 		
 		List<ChattingDTO.FollowListDTO> followList = chattingService.selectFollowList(loginMember.getMemberNo(), roomNo);
 		
-		log.info("팔로우 리스트 조회 결과 : {} ", followList);
+		// log.info("팔로우 리스트 조회 결과 : {} ", followList);
 		
 		model.addAttribute("followList", followList);
 		
@@ -93,7 +93,7 @@ public class ChatRestController {
 			) {
 		Long myMemberNo = loginMember.getMemberNo();
 		
-		log.info("myMemberNo={}, targetMemberNo={}", myMemberNo, targetMemberNo);
+		// log.info("myMemberNo={}, targetMemberNo={}", myMemberNo, targetMemberNo);
 		
 		return chattingService.privateCreate(myMemberNo, targetMemberNo);
 	}
@@ -107,7 +107,7 @@ public class ChatRestController {
 			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
 			) throws IOException {
 		
-		log.info("파라미터 확인 group : {}", group);
+		// log.info("파라미터 확인 group : {}", group);
 		
 		Long loginMemberNo = loginMember.getMemberNo();
 		
@@ -132,6 +132,9 @@ public class ChatRestController {
 		
 		model.addAttribute("roomInfo", roomInfo);
 		
+		boolean isOwner = chattingService.isOwner(roomNo, memberNo);
+		
+		model.addAttribute("isOwner", isOwner);
 		
 		return "chatting/chatting ::#chatting-space";
 		
@@ -145,7 +148,7 @@ public class ChatRestController {
 			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
 			){
 		
-		System.out.println("채팅방 나가기 방 버호 파라미터 확인 : " + roomNo);
+		// System.out.println("채팅방 나가기 방 버호 파라미터 확인 : " + roomNo);
 		chattingService.roomExit(roomNo, loginMember.getMemberNo());
 		
 		
@@ -155,5 +158,18 @@ public class ChatRestController {
 	
 	
 	// 채팅방 초대
+	@PostMapping("/devtalk/inviteChat")
+	public ResponseEntity<Void> userInvite(
+			@RequestBody Map<String, Object> paramMap
+			) {
+			
+		System.out.println("초대 파라미터 확인 : " + paramMap);
+		
+		chattingService.userInvite(paramMap);
+		
+		
+		return ResponseEntity.ok().build();
+		
+	}
 	
 }	

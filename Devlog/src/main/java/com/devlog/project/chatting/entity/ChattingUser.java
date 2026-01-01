@@ -72,8 +72,9 @@ public class ChattingUser {
 		
 		if(pinnedYn == null)
 			this.pinnedYn = ChatEnums.YesNo.N;
-		
-		this.lastReadNo = 0;
+		 
+		if (this.lastReadNo == null)
+			this.lastReadNo = 0;
 	}
 	
 	

@@ -2,6 +2,7 @@ package com.devlog.project.chatting.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.devlog.project.chatting.dto.ChattingDTO;
 import com.devlog.project.chatting.dto.ChattingDTO.GroupCreateDTO;
@@ -42,6 +43,13 @@ public interface ChattingService {
 	
 	// 채팅방 나가기
 	void roomExit(Long roomNo, Long memberNo);
+	
+	
+	// 유저 초대
+	void userInvite(Map<String, Object> paramMap);
+	
+	// 채팅방 주인 여부
+	boolean isOwner(Long roomNo, Long memberNo);
 	
 
 }

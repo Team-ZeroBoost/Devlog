@@ -2,6 +2,12 @@ package com.devlog.project.chatting.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -12,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.devlog.project.chatting.chatenums.MsgEnums;
 import com.devlog.project.chatting.chatenums.MsgEnums.MsgStatus;
 import com.devlog.project.chatting.chatenums.MsgEnums.MsgType;
+import com.devlog.project.chatting.dto.EmojiDTO;
+import com.devlog.project.chatting.dto.EmojiDTO.updateEmojiDTO;
 import com.devlog.project.chatting.dto.MessageDTO;
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessage;
 import com.devlog.project.chatting.dto.MessageDTO.ChatMessageResponse;
@@ -19,9 +27,13 @@ import com.devlog.project.chatting.dto.MessageDTO.ImageRequest;
 import com.devlog.project.chatting.dto.MessageDTO.MessageEdit;
 import com.devlog.project.chatting.dto.MessageDTO.MessageEditResp;
 import com.devlog.project.chatting.entity.ChatRoom;
+import com.devlog.project.chatting.entity.Emoji;
 import com.devlog.project.chatting.entity.Message;
+import com.devlog.project.chatting.entity.MessageEmoji;
 import com.devlog.project.chatting.entity.MessageImage;
 import com.devlog.project.chatting.repository.ChatRoomRepository;
+import com.devlog.project.chatting.repository.EmojiRepository;
+import com.devlog.project.chatting.repository.MessageEmojiRepository;
 import com.devlog.project.chatting.repository.MessageImageRepository;
 import com.devlog.project.chatting.repository.MessageRepository;
 import com.devlog.project.common.utility.Util;
@@ -42,6 +54,9 @@ public class MessageServiceImpl implements MessageService {
 	private final SimpMessagingTemplate template;
 	private final MessageImageRepository msgImageRepository;
 	
+	private final EmojiRepository emojiRepository;
+	
+	private final MessageEmojiRepository msgEmojiRepository;
 	
 	@Value("${my.chatMessage.location}")
 	private String filePath;
@@ -196,6 +211,92 @@ public class MessageServiceImpl implements MessageService {
 		template.convertAndSend(
 				"/topic/room/" + message.getChattingRoom().getRoomNo(),
 					delMsg
+				);
+		
+	}
+
+	
+	
+	// 메세지 공감 삽입
+	@Override
+	@Transactional
+	public void sendEmoji(Map<String, Object> paramMap) {
+		
+		Long memberNo = ((Number)paramMap.get("memberNo")).longValue();
+		
+		Long messageNo = ((Number)paramMap.get("messageNo")).longValue();
+		
+		Long emojiCode = ((Number)paramMap.get("emojiCode")).longValue();
+		
+		
+		
+		
+		// 멤버
+		
+		Member member = memberRepository.findById(memberNo)
+						.orElseThrow();
+		
+		
+		// 메세지 
+		
+		Message message = msgRepository.findById(messageNo)
+							.orElseThrow();
+		
+		// 이모지
+		
+		Emoji emoji = emojiRepository.findById(emojiCode)
+					.orElseThrow();
+		
+		// 회원 + 메세지로 일치하는 것이 있는지 조회
+		Optional<MessageEmoji> reaction = msgEmojiRepository.findByMessageAndMember(message, member);
+		
+		// 일치하는 것이 있다면 새이모지 코드 or 기존 이모지 코드로 업데이트
+		if(reaction.isPresent()) {
+			System.out.println("엔티티 존재 : " + emojiCode);
+			reaction.get().setEmoji(emoji);
+			
+		} else { // 일치하는 것이 없다면 새 엔티티 생성 후 저장
+			MessageEmoji newReaction = MessageEmoji.builder()
+										.emoji(emoji)
+										.member(member)
+										.message(message)
+										.build();
+			
+			msgEmojiRepository.save(newReaction);
+			
+			System.out.println("이모지 저장 성공 ! ! !");
+		}
+		
+		List<Long> messageNos = new ArrayList<>();
+		messageNos.add(messageNo);
+		
+		List<EmojiDTO> emojiDtos = msgEmojiRepository.findEmojiCount(messageNos);
+						
+		
+		Map<String, Long> reactionMap = new LinkedHashMap<>();
+		
+		for (EmojiDTO emojiDTO : emojiDtos) {
+			
+			String key = emojiDTO.getEmoji();
+			
+			Long value = emojiDTO.getCount();
+			
+			reactionMap.put(key, value);
+		}
+		
+		
+		
+		EmojiDTO.updateEmojiDTO updateEmoji = new EmojiDTO.updateEmojiDTO();
+		
+		updateEmoji.setMessageNo(messageNo);
+		updateEmoji.setReactions(reactionMap);
+		updateEmoji.setType("Emoji");
+		
+		System.out.println("updateEmoji : " + updateEmoji);
+		
+		template.convertAndSend(
+				"/topic/room/" + message.getChattingRoom().getRoomNo(),
+				updateEmoji
 				);
 		
 	}

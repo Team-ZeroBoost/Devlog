@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.devlog.project.chatting.dto.MessageDTO;
@@ -38,6 +39,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 			JOIN m.member mem
 			LEFT JOIN m.messageImg mi
 			WHERE m.chattingRoom.roomNo = :roomNo
+			AND m.sendTime >= (
+			    SELECT cu2.joinDate
+			    FROM ChattingUser cu2
+			    WHERE cu2.chatUserId.roomNo = :roomNo
+			      AND cu2.chatUserId.memberNo = :memberNo
+			)
 			ORDER BY m.messageNo
 			""")
 	List<MessageDTO> findByMessageList(Long roomNo, Long memberNo);
@@ -57,6 +64,16 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 			    )
 			""")
 	Long countUnreadMsg(Long memberNo, Long roomNo);
+
+
+	
+	// 마지막 읽은 메세지로 
+	@Query("""
+			select MAX(m.messageNo)
+			from Message m
+			where m.chattingRoom.roomNo = :roomNo
+			""")
+	Integer selectLastMessage(@Param("roomNo") Long roomNo);
 	
 	
 }

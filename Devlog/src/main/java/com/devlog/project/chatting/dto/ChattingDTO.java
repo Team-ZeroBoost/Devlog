@@ -70,6 +70,7 @@ public class ChattingDTO {
 		private int participantCount; // 참여인원
 		private String roomProfile; // 채팅방 프로필
 		
+		
 		List<MessageDTO> messageList;
 		
 		List<ParticipantDTO> users;

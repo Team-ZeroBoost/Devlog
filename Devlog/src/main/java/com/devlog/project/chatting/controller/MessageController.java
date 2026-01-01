@@ -42,6 +42,9 @@ public class MessageController {
 	
 	private final ChattingService chatService;
 	
+	// 현재 채팅방에 참여중인 회원 목록을 담을 Map
+	// key = roomNo, value = 해당 채팅방에 접속한 memberNo 집합
+	// ConcurrentHashMap + newKeySet() → 멀티스레드 환경에서도 안전하게 관리
 	private final Map<Long, Set<Long>> roomViewers = new ConcurrentHashMap<>();
 	
 	// 유저 채팅방 구독 시 Map에 추가
@@ -52,6 +55,7 @@ public class MessageController {
 	    roomViewers
 	        .computeIfAbsent(req.getRoomNo(), k -> ConcurrentHashMap.newKeySet())
 	        .add(req.getMemberNo());
+	    // computeIfAbsent(K key, Function) : key 가 없을 경우 값을 생성
 	}
 	
 	
@@ -199,6 +203,23 @@ public class MessageController {
 		
 		return ResponseEntity.ok().build();
 		
+	}
+	
+	
+	@PostMapping("/devtalk/sendEmoji")
+	public ResponseEntity<Void> sendEmoji(
+			@RequestBody Map<String, Object> paramMap,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
+			) {
+		
+		System.out.println("이모지 파라미터 퐉인 : " + paramMap);
+		
+		paramMap.put("memberNo", loginMember.getMemberNo());
+		
+		service.sendEmoji(paramMap);
+		
+		
+		return ResponseEntity.ok().build();
 	}
 
 

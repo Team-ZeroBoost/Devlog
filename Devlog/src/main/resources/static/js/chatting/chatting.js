@@ -553,8 +553,14 @@ function emojiClickClose(emojiArea) {
 
     for (let emoji of emojis) {
         emoji.onclick = e => {
-
             e.stopPropagation();
+
+            const emojiCode = emoji.dataset.emojiCode;
+            const messageNo = emoji.closest('.message-item').dataset.messageNo;
+
+            console.log(emojiCode, messageNo);
+
+            sendEmoji(Number(emojiCode), Number(messageNo));
 
             
             emojiArea.classList.add('display-none');
@@ -563,6 +569,27 @@ function emojiClickClose(emojiArea) {
 }
 
 
+async function sendEmoji(emojiCode, messageNo) {
+
+    if(!emojiCode || !messageNo) return ;
+
+    const data = {
+        emojiCode : emojiCode,
+        messageNo : messageNo
+    }
+
+    const resp = await fetch('/devtalk/sendEmoji', {
+                method : "POST",
+                headers : {"Content-Type" : "application/json"},
+                body : JSON.stringify(data)
+    })
+
+    if(!resp.ok) {
+        console.log("이모지 전송 실패");
+        return ;
+    }
+
+}
 
 
 /* ===========================================
@@ -707,6 +734,7 @@ function bindMessageEditEvents() {
     })
 }
 
+
 async function submitEdit() {
 
     console.log("메세지 수정 함수 호출 확인 ");
@@ -763,21 +791,34 @@ function closeEditMode(sendArea, editArea) {
     if (input) input.value = '';
 }
 
+//================================================================
+// 메세지 신고 
+
+function bindMessageReportEvent() {
+    const chatArea = document.getElementById('chattingArea');
+    if (!chatArea) return;
 
 
-/* 유저 초대 */
-/* 초대 버튼 클릭 시 비동기로 회원 목록 조회후 fragment 써서 렌더링 예정 */
+    chatArea.addEventListener('click', e=> {
+
+        const btn = e.target.closest('.msg-report-btn');
+        if (!btn) return;
+
+        const li = btn.closest('.message-item');
+        if (!li) return;
+
+        const option = btn.closest('.msg-option');
+
+        const targetMemberNo = li.dataset.memberNo;
+
+        openReportModal(targetMemberNo);
 
 
-/* 선택 되면 태그 형식으로 추가 */
+        option.classList.add('display-none');
+    })
 
+}
 
-
-/* 취소 클릭 시 초대창 닫기 */
-// document.getElementById('invite-cancel')?.addEventListener('click', e => {
-//     document.getElementsByClassName('user-invite-box')[0].classList.add('display-none')  
-//     chatOverlay.classList.remove('active')
-// })
 
 
 function bindInviteEvents() {
@@ -839,7 +880,7 @@ function bindInviteEvents() {
             document.getElementsByClassName('user-invite-box')[0].classList.add('display-none');
             chatOverlay.classList.remove('active');
             
-            const checkedUsers = document.querySelectorAll('input[name="invite"]:checked');
+            const checkedUsers = document.querySelectorAll('input[name="roomInvite"]:checked');
             const memberNos = [];
             for (let user of checkedUsers) {
     
@@ -857,9 +898,12 @@ function bindInviteEvents() {
                 headers : {'Content-Type' : 'application/json'},
                 body : JSON.stringify(data)
             })
-            .then(resp)
-            .then()
-            .catch()
+            .then(resp => {
+                if(resp.ok) {
+                    loadChatRoom(currentRoomNo);
+                }
+            })
+            .catch(e => console.log('회원 초대 실패', e))
 
     
 
@@ -1003,48 +1047,7 @@ function bindTeamNameEditEvent() {
 // }
 
 
-
-
-/* ------------------------------------------ */
-/* 메세지 삭제 버튼 클릭 시 */
-
-// const msgDeleteBtn = document.querySelectorAll('.msg-delete-btn');
-// const delCheck = document.querySelector('.del-check')
-// 
-// for (let delBtn of msgDeleteBtn) {
-// 
-//     delBtn.addEventListener('click', e => {
-// 
-//         const opt = delBtn.closest('.msg-option');
-// 
-//         opt.classList.add('display-none');
-// 
-//         delCheck.classList.remove('display-none');
-// 
-//         chatOverlay.classList.toggle('active')
-//     })
-//     
-// }
-// 
-// 
-// const msgDelYes = document.getElementById("msg-del-yes");
-// const msgDelNo = document.getElementById("msg-del-no");
-// 
-// msgDelYes.addEventListener('click', e => {
-//     delCheck.classList.add('display-none');
-//     chatOverlay.classList.toggle('active');
-// 
-//     /* 비동기로 화면 삭제 로직 처리 */
-// 
-// 
-// })
-// 
-// msgDelNo.addEventListener('click', e => {
-//     delCheck.classList.add('display-none');
-//     chatOverlay.classList.toggle('active');
-// 
-// })
-
+// 메세지 삭제 이벤트
 function bindMessageDeleteEvents() {
 
     const chatArea = document.getElementById('chattingArea');
@@ -1104,6 +1107,7 @@ function bindMessageDeleteEvents() {
 
 
 
+
 const profileImgs = document.querySelectorAll('.profile-img');
 
 profileImgs.forEach(img => {
@@ -1137,32 +1141,35 @@ document.querySelectorAll('.profile-card').forEach(card => {
 
 
 
+function imagebigViewer() {
 
-const viewer = document.getElementById('imageViewer');
-const viewerImg = document.getElementById('imageViewerImg');
-
-document.querySelectorAll('.bubble.image img').forEach(img => {
-    img.addEventListener('click', e => {
-        e.stopPropagation();
-
-        viewerImg.src = img.src;
-        viewer.classList.remove('display-none');
+    const viewer = document.getElementById('imageViewer');
+    const viewerImg = document.getElementById('imageViewerImg');
+    
+    document.querySelectorAll('.bubble.image img').forEach(img => {
+        img.addEventListener('click', e => {
+            e.stopPropagation();
+    
+            viewerImg.src = img.src;
+            viewer.classList.remove('display-none');
+        });
     });
-});
-
-
-viewer.addEventListener('click', () => {
-    viewer.classList.add('display-none');
-    viewerImg.src = '';
-});
-
-
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
+    
+    
+    viewer.addEventListener('click', () => {
         viewer.classList.add('display-none');
         viewerImg.src = '';
-    }
-});
+    });
+    
+    
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            viewer.classList.add('display-none');
+            viewerImg.src = '';
+        }
+    });
+}
+
 
 
 
@@ -1207,6 +1214,8 @@ function afterFuncLoad(){
     bindChatUIEvents();
     bindInviteEvents();
     bindSendImage();
+    imagebigViewer();
+    bindMessageReportEvent();
 
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -1473,6 +1482,12 @@ function onMessageReceived(payload) {
 
             return;
         }
+
+        if(msg.type == 'Emoji'){
+            updateEmojiUI(msg);
+
+            return ;
+        }
         appendMessage(msg);
 
         sendReadSignal(msg.room_no);
@@ -1578,6 +1593,44 @@ function applyMessageStatus(msg){
 
 
     }
+
+}
+
+// 이모지 업데이트 함수
+function updateEmojiUI(msg) {
+
+    const li = document.querySelector(`[data-message-no="${msg.message_no}"]`)
+
+    if(!li) return ;
+
+    const bubble = li.querySelector('.bubble');
+
+    let badge = li.querySelector('.reaction-badge');
+
+    if(badge) badge.remove();
+
+    badge = document.createElement('div');
+    badge.className = 'reaction-badge';
+
+    for(const [emoji, count] of Object.entries( msg.reactions)) {
+        const span = document.createElement('span');
+        span.className = 'flex-center gap-4';
+
+        const e = document.createElement('span');
+        e.innerText = emoji;
+
+        const c = document.createElement('span');
+
+        c.innerText = count;
+
+        span.append(e, c);
+
+        badge.append(span);
+
+    }
+
+    bubble.after(badge);
+
 
 }
 
@@ -1753,7 +1806,6 @@ function createOtherMessage(msg) {
 
     }
 
-    // time (⚠️ bubble 밖)
     const time = document.createElement('span');
     time.className = 'fs-12 send-time';
     time.innerText = formatTime(msg.sendtime);
@@ -1777,7 +1829,6 @@ function createOtherMessage(msg) {
 function formatTime(timeStr) {
     if (!timeStr) return '';
 
-    // 소수점 3자리까지만 남기기 → JS Date 안정화
     const safe = timeStr.replace(/\.(\d{3})\d*/, '.$1');
 
     const d = new Date(safe);
@@ -1850,13 +1901,20 @@ function bindSendImage(){
     const textarea = document.getElementById('send-message');
     const imgDelete = document.getElementById('send-image-delete');
     const imgSendBtn = document.getElementById('send-btn');
-    const selectFile = null;
+    const MAX = 3 * 1024 * 1024;
+    let selectFile = null;
     if(!imgInput) return ;
 
     imgInput.addEventListener('change' , e => {
         const file = imgInput.files[0];
         if(!file) return;
 
+        if(file.size > MAX) {
+            alert('이미지는 3MB 이하만 업로드할 수 있습니다.');
+            imgInput.value = '';
+            return ;
+        }
+        
         selectFile = file;
         imgDiv.classList.remove('display-none');
         textarea.disabled = true;
@@ -1918,3 +1976,15 @@ function bindSendImage(){
 }
 
 
+
+
+
+function openReportModal(reportedNo) {
+
+    fetch(`/report/modal?memberNo=${reportedNo}`)
+        .then(res => res.text())
+        .then(html => {
+        document.getElementById('modal-root')
+                .insertAdjacentHTML('beforeend', html);
+    });
+}

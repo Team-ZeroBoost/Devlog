@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.devlog.project.chatting.chatenums.ChatEnums.Role;
 import com.devlog.project.chatting.dto.ParticipantDTO;
 import com.devlog.project.chatting.dto.ParticipantDTO.ChatListUpdateDTO;
 import com.devlog.project.chatting.entity.ChattingUser;
@@ -83,6 +84,12 @@ public interface ChattingUserRepository extends JpaRepository<ChattingUser, Chat
 			where cu.chattingRoom.roomNo = :roomNo
 			""")
 	List<Long> selectUsers(@Param("roomNo") Long roomNo);
+
+
+	
+	
+	// 방장 여붖 ㅗ회
+	boolean existsByChatUserIdRoomNoAndChatUserIdMemberNoAndRole(Long roomNo, Long memberNo, Role owner);
 
 	
 	

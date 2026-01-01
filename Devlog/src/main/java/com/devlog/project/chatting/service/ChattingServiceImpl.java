@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +39,7 @@ import com.devlog.project.chatting.entity.Message;
 import com.devlog.project.chatting.mapper.ChattingMapper;
 import com.devlog.project.chatting.repository.ChatRoomRepository;
 import com.devlog.project.chatting.repository.ChattingUserRepository;
-import com.devlog.project.chatting.repository.EmojiRepository;
+import com.devlog.project.chatting.repository.MessageEmojiRepository;
 import com.devlog.project.chatting.repository.MessageRepository;
 import com.devlog.project.common.utility.Util;
 import com.devlog.project.member.model.entity.Member;
@@ -60,7 +62,7 @@ public class ChattingServiceImpl implements ChattingService {
 	private final MemberRepository memberRepository;
 	
 	private final MessageRepository messageRepository;
-	private final EmojiRepository emojiRepository;
+	private final MessageEmojiRepository emojiRepository;
 	
 	
 	private final SimpMessagingTemplate template;
@@ -136,7 +138,7 @@ public class ChattingServiceImpl implements ChattingService {
 							.chatUserId(new ChattingUserId())	
 							.chattingRoom(roomRef)   // @MapsId("roomNo")
 							.member(memberRef)       // @MapsId("memberNo")
-							.role(memberNo.equals(myMemberNo) ? ChatEnums.Role.OWNER : ChatEnums.Role.MEMBER)
+							.role(ChatEnums.Role.MEMBER)
 							.build();
 				})
 				.toList();
@@ -247,6 +249,8 @@ public class ChattingServiceImpl implements ChattingService {
 		
 		RoomInfoDTO roomInfo = new RoomInfoDTO();
 		
+		
+		
 		// 1. 채팅방 정보 조회
 		ChatRoom room = roomRepository.findById(roomNo)
 				.orElseThrow();
@@ -261,6 +265,7 @@ public class ChattingServiceImpl implements ChattingService {
 			roomInfo.setRoomName(opponentMember.getMemberNickname());
 			roomInfo.setRoomProfile(opponentMember.getProfileImg());
 		}
+		
 		
 		
 		// 2. 참여 회원 목록
@@ -291,7 +296,7 @@ public class ChattingServiceImpl implements ChattingService {
 			Long count = emojiDTO.getCount();
 			
 			if(!reactionMap.containsKey(messageNo)) {
-				reactionMap.put(messageNo, new HashMap<>());
+				reactionMap.put(messageNo, new LinkedHashMap<>());
 			}
 			// 4 : {❤️ : 1, 😠 : 1}
 			
@@ -408,13 +413,71 @@ public class ChattingServiceImpl implements ChattingService {
 	}
 
 	
+	// 유저 초대
+	@Override
+	@Transactional
+	public void userInvite(Map<String, Object> paramMap) {
+		
+		List<?> memberNos = (List<?>) paramMap.get("member_no");
+		
+		Long roomNo = ((Number) paramMap.get("room_no")).longValue();
+		
+		ChatRoom room = roomRepository.findById(roomNo)
+						.orElseThrow();
+		
+		Integer LastMessageNo = messageRepository.selectLastMessage(roomNo);
+		
+		List<String> nicknames = new ArrayList<>();
+		
+		for (Object no : memberNos) {
+			
+			Long memberNo = ((Number) no).longValue();
+			
+			Member member = memberRepository.findById(memberNo)
+							.orElseThrow();
+			
+			nicknames.add(member.getMemberNickname()+"님");
+			
+			ChattingUser user = ChattingUser.builder()
+								.chatUserId(new ChattingUserId())
+								.chattingRoom(room)
+								.member(member)
+								.role(ChatEnums.Role.MEMBER)
+								.lastReadNo(LastMessageNo)
+								.build();
+			
+			
+			chattingUserRepository.save(user);
+			
+		}
+		
+		String nicknameList = String.join(", ", nicknames);
+		
+		Member admin = memberRepository.findById(0l).orElseThrow();
+		
+		Message message = Message.builder()
+							.chattingRoom(room)
+							.member(admin)
+							.messageContent(nicknameList+"이 초대되었습니다.")
+							.type(MsgType.SYSTEM)
+							.build();
+		
+		messageRepository.save(message);
+		
+		
+	}
+
 	
-
-
-
-
-
-
+	// 방장 여부
+	@Override
+	public boolean isOwner(Long roomNo, Long memberNo) {
+		
+		
+		return chattingUserRepository
+	            .existsByChatUserIdRoomNoAndChatUserIdMemberNoAndRole(
+	                    roomNo, memberNo, ChatEnums.Role.OWNER
+	                );
+	}
 
 
 
