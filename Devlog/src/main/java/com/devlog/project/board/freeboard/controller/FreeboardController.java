@@ -1,4 +1,4 @@
-package com.devlog.project.board.freeboard;
+package com.devlog.project.board.freeboard.controller;
 
 import java.util.Map;
 

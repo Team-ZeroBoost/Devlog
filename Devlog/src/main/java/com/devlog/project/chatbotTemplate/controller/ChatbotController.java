@@ -10,7 +10,7 @@ import java.util.Map;
 
 //@RestController // @Controller + @ResponseBody // => 아래 @GetMapping("page")에서 경로로 forward가 아니라 경로를 String으로 반환하는 이슈 일으킴
 @Controller
-@RequestMapping("/api/chat")
+@RequestMapping("/api/chatbot")
 public class ChatbotController {
 
     private final ChatbotService chatService;
