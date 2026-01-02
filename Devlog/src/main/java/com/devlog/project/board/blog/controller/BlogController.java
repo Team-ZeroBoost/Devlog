@@ -87,9 +87,10 @@ public class BlogController {
 	@GetMapping("/blog/{blogId}")
     public String blogMain(@PathVariable("blogId") String blogId, Model model) {
         
+		System.out.println("blogId : " + blogId);
         // 1. 프로필 정보 가져오기 (Service에서 DTO 변환 완료됨)
         UserProfileDto profile = blogService.getUserProfile(blogId);
-        model.addAttribute("userProfile", profile);
+        model.addAttribute("userProfile", profile);	
         
         model.addAttribute("followerCount", 0);
         model.addAttribute("followingCount", 0);
@@ -108,6 +109,11 @@ public class BlogController {
             // Spring Security가 관리하는 현재 로그인 ID
             String currentUserId = auth.getName(); 
             
+            System.out.println("=== 주인 여부 확인 ===");
+            System.out.println("현재 로그인한 ID (auth.getName()) : " + currentUserId);
+            System.out.println("현재 접속한 블로그 ID (URL) : " + blogId);
+            System.out.println("일치 여부 : " + currentUserId.equals(blogId));
+            System.out.println("===================");
             // 이메일(ID)이 일치하면 주인으로 인정
             if (currentUserId.equals(blogId)) {
                 isOwner = true;

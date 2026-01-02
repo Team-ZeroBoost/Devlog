@@ -20,7 +20,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @MapperScan("com.devlog.project.**.mapper")
 public class DBConfig {
-
+	
     @Bean
     public SqlSessionFactory sqlSessionFactory(
             DataSource dataSource,

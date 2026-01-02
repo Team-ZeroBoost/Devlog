@@ -14,8 +14,9 @@ const editor = new toastui.Editor({
             formData.append('image', blob);
 
             // 2. 서버로 이미지 업로드 요청
-            fetch('/api/blog/image-upload', {
+            fetch('/api/blog/imageUpload', {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             })
             .then(response => response.text()) // 저장된 이미지의 URL을 응답으로 받음
@@ -182,6 +183,7 @@ function savePost(isTemp) {
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(postData),
     })
         .then(response => {

@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +23,10 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.devlog.project.member.model.dto.MemberLoginResponseDTO;
+import com.devlog.project.member.model.dto.MemberProfileDTO;
 import com.devlog.project.member.model.dto.MemberSignUpRequestDTO;
 import com.devlog.project.member.model.security.CustomUserDetails;
+import com.devlog.project.member.model.service.MemberProfileService;
 import com.devlog.project.member.model.service.MemberService;
 import com.devlog.project.member.model.service.MemberService2;
 
@@ -42,6 +45,7 @@ public class MemberController {
 
 	private final MemberService memberService; //
 	private final MemberService2 service; //
+	private final MemberProfileService profileService;
 	
 	private final AuthenticationManager authenticationManager; // spring-security
 	
@@ -123,10 +127,18 @@ public class MemberController {
 	        if (oldSession != null) {
 	            oldSession.invalidate();
 	        }
-
+	        
+	        // 12-31 YHJ 추가
 	        HttpSession newSession = request.getSession(true);
 	        newSession.setAttribute("loginMember", response);
-				
+	        
+	        newSession.setAttribute(
+	        		HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+	        		SecurityContextHolder.getContext()
+	        		);
+	        
+	        
+	        
 			// 2) 아이디 저장(쿠키에)
 			// 쿠키 생성(K:V로 해당 쿠키에 담을 (로그인멤버의 이메일) 데이터 지정)
 			Cookie cookie = new Cookie("saveId", response.getMemberEmail()); // 로그인 성공시
@@ -295,6 +307,18 @@ public class MemberController {
 		
 		return path;
     }	
+	
+	
+	@GetMapping("/profile")
+	@ResponseBody
+	public MemberProfileDTO selectProfile(
+			Long memberNo
+			) {
+		
+		
+		
+		return profileService.selectProfile(memberNo);
+	}
 		
 	
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.devlog.project.chatting.dto.ChattingDTO;
+import com.devlog.project.chatting.dto.ChattingDTO.ChattingListDTO;
 import com.devlog.project.chatting.service.ChattingService;
+import com.devlog.project.common.utility.Util;
+import com.devlog.project.member.model.dto.MbMember;
+import com.devlog.project.member.model.dto.MemberLoginResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +36,21 @@ public class ChatRestController {
 	// 채팅방 목록 조회
 	@GetMapping("/devtalk/chatList")
 	public String selectChatList(
-			Model model){
+			Model model,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember,
+			@RequestParam String query){
 		
-		int memberNo = 1;
+		// System.out.println("검색어 확인 : " + query);
 		
-		List<ChattingDTO.ChattingListDTO> chatList = chattingService.selectChatList(memberNo);
 		
-		log.info("chatList = {}", chatList);
+		List<ChattingDTO.ChattingListDTO> chatList = chattingService.selectChatList(loginMember.getMemberNo(), query);
+		
+		for (ChattingListDTO dto : chatList) {
+			dto.setFormatTime(Util.formatChatTime(dto.getLastMessageAt()));
+			
+		}
+		
+		// log.info("chatList = {}", chatList);
 		
 		model.addAttribute("chatList", chatList);
 		
@@ -48,19 +61,26 @@ public class ChatRestController {
 	// 회원 초대할 팔로우 목록 조회
 	@GetMapping("/devtalk/followSelect")
 	public String selectFollowList(
+			@RequestParam(value = "roomNo", required = false) Long roomNo,
 			// 세션 로그인 멤버
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember,
 			Model model
 			) {
 		
-		int memberNo = 1;
+		// System.out.println("팔로우 목록 조회 roomNo 확인 : " + roomNo);
 		
-		List<ChattingDTO.FollowListDTO> followList = chattingService.selectFollowList(memberNo);
+		List<ChattingDTO.FollowListDTO> followList = chattingService.selectFollowList(loginMember.getMemberNo(), roomNo);
 		
-		log.info("팔로우 리스트 조회 결과 : {} ", followList);
+		// log.info("팔로우 리스트 조회 결과 : {} ", followList);
 		
 		model.addAttribute("followList", followList);
 		
-		return "chatting/chatting ::#chatFollowList";
+		if(roomNo == null) {
+			
+			return "chatting/chatting :: #chatFollowList";
+		} else {
+			return "chatting/chatting :: #inviteUserList";
+		}
 	}
 	
 	
@@ -68,12 +88,12 @@ public class ChatRestController {
 	@PostMapping("/devtalk/create/private")
 	@ResponseBody
 	public Long privateCreate(
-			@RequestBody Long targetMemberNo
-			
+			@RequestBody Long targetMemberNo,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
 			) {
-		Long myMemberNo = 1l;
+		Long myMemberNo = loginMember.getMemberNo();
 		
-		log.info("myMemberNo={}, targetMemberNo={}", myMemberNo, targetMemberNo);
+		// log.info("myMemberNo={}, targetMemberNo={}", myMemberNo, targetMemberNo);
 		
 		return chattingService.privateCreate(myMemberNo, targetMemberNo);
 	}
@@ -83,13 +103,13 @@ public class ChatRestController {
 	@PostMapping("/devtalk/create/group")
 	@ResponseBody
 	public Long gropuCreate(
-			@ModelAttribute ChattingDTO.GroupCreateDTO group
-			// 세션 로그인 멤버
+			@ModelAttribute ChattingDTO.GroupCreateDTO group,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
 			) throws IOException {
 		
-		log.info("파라미터 확인 group : {}", group);
+		// log.info("파라미터 확인 group : {}", group);
 		
-		Long loginMemberNo = 1l;
+		Long loginMemberNo = loginMember.getMemberNo();
 		
 		group.getMemberNo().add(0, loginMemberNo);
 		
@@ -103,15 +123,53 @@ public class ChatRestController {
 	@GetMapping("/devtalk/roomInfoLoad")
 	public String roomInfoLoad(
 			@RequestParam("roomNo") Long roomNo,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember,
 			Model model) {
 		
-		ChattingDTO.RoomInfoDTO roomInfo = chattingService.roomInfoLoad(roomNo);
+		Long memberNo = loginMember.getMemberNo();
 		
+		ChattingDTO.RoomInfoDTO roomInfo = chattingService.roomInfoLoad(roomNo, memberNo);
 		
+		model.addAttribute("roomInfo", roomInfo);
 		
-		return null;
+		boolean isOwner = chattingService.isOwner(roomNo, memberNo);
+		
+		model.addAttribute("isOwner", isOwner);
+		
+		return "chatting/chatting ::#chatting-space";
 		
 	}
 	
+	
+	// 채팅방 나가기
+	@GetMapping("/devtalk/roomExit")
+	public ResponseEntity<Void> roomExit(
+			@RequestParam("roomNo") Long roomNo,
+			@SessionAttribute("loginMember") MemberLoginResponseDTO loginMember
+			){
+		
+		// System.out.println("채팅방 나가기 방 버호 파라미터 확인 : " + roomNo);
+		chattingService.roomExit(roomNo, loginMember.getMemberNo());
+		
+		
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	
+	// 채팅방 초대
+	@PostMapping("/devtalk/inviteChat")
+	public ResponseEntity<Void> userInvite(
+			@RequestBody Map<String, Object> paramMap
+			) {
+			
+		System.out.println("초대 파라미터 확인 : " + paramMap);
+		
+		chattingService.userInvite(paramMap);
+		
+		
+		return ResponseEntity.ok().build();
+		
+	}
 	
 }	

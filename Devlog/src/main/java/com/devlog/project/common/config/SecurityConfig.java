@@ -69,13 +69,18 @@ public class SecurityConfig {
 	                "/error",
 	                
 	                "/devtalk/**",
+					"/ws-chat/**",
+	                "/topic/**",
+	                "/queue/**",
 	                
 	                //// KJY ////
 	                "/jobposting",
 	                "/jobposting/**",
 	                "/job-crawler",
 	                "/ITnews/**",
-	                "/ITnews"
+	                "/ITnews",
+	                "/coffeebeans/**"
+	                
 	                
 	                
 	                ///// PYY API Addition Start: /////
@@ -84,14 +89,18 @@ public class SecurityConfig {
 	                ,"/checkCode/**"
 	                ,"/board/freeboard/**"
 	                ,"/app/login/**"
-	                ,"/member/signUpKakao"	                
-	                ///// PYY API Addition End: /////	                
-	                ,"/blog/**"
-	                ,"/api/blog/**"
+	                ,"/member/signUpKakao"	       
+	                ,"/board2/freeboard/**" ///
+	                ,"/api/chatbot/**"
+	                ,"/api/ai/**"
+	                ,"/api/manager/**" 	                
+	                ///// PYY API Addition End: /////	          
+	                
 	                ,"/board/qna/**"
                 
 	                ////* YHJ *////  
 	                ,"/blog/list"
+	                ,"/blog/detail/**"
 	                ,"/api/blog/list"
 	                ,"/blog/*"
 	                ,"/api/blog/*/list"
