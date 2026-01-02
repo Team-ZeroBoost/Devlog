@@ -75,7 +75,7 @@ public class fileUploadConfig implements WebMvcConfigurer {
 	        resourcePath = "file:///C:/DevlogImg/";
 	    } else if (osName.contains("mac")) {
 	        // macOS
-	        resourcePath = "file:///MacUsers/soyeon/DevlogImg/";
+	        resourcePath = "file:///Users/gimsoyeon/DevlogImg/";
 	    } else {
 	        // Linux (Ubuntu 22.04 포함)
 	        resourcePath = "file:///home/yypark/C:/DevlogImg/";

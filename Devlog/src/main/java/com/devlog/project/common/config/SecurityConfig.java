@@ -105,6 +105,8 @@ public class SecurityConfig {
 	                ,"/blog/*"
 	                ,"/api/blog/*/list"
 	                
+	                ,"/api/ai/writing/**"
+	                
 	            ).permitAll()
 	            .anyRequest().authenticated()
 	        )

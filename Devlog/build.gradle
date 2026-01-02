@@ -75,6 +75,9 @@ dependencies {
     // Chatbot
    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
    
+   // 오탈자 검출
+   implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+   
    // Spring Security, 2025/12/20
     implementation 'org.springframework.boot:spring-boot-starter-security'
 

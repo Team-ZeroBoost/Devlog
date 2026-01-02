@@ -465,3 +465,17 @@ input:checked+.slider:before {
         transform: translateY(0);
     }
 }
+
+/* 소연 - 맞춤법 검사 기능 활성화 시 오류에 하이라이트 */
+.spell-debug-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999999;
+  }
+  .spell-debug-mark {
+    position: fixed;
+    background: rgba(255, 255, 0, 0.55);
+    outline: 2px solid rgba(255, 0, 0, 0.9);
+    border-radius: 3px;
+  }
