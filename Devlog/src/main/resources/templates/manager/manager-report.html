@@ -1,20 +1,28 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8" />
   <title>신고 관리</title>
-  <link rel="stylesheet" href="../../static/css/manager/manager-layout.css">
-  <link rel="stylesheet" href="../../static/css/manager/manager-report.css">
-  
+
+  <link rel="stylesheet" th:href="@{/css/manager/manager-layout.css}">
+  <link rel="stylesheet" th:href="@{/css/manager/manager-report.css}">
 </head>
+
 <body>
 
-  <!-- ===== 헤더 ===== -->
+  <!-- 헤더 -->
   <header class="header">
     <div class="left-area">
-      <img src="../../static/images/manager/devlog.svg" alt="Devlog logo" class="logo" />
-      <span class="welcome">소연님, 돌아오신 것을 환영합니다.</span>
+      <img th:src="@{/images/manager/devlog.svg}" alt="Devlog logo" class="logo" />
+      <span class="welcome"
+            th:text="|${session.loginMember != null 
+                        ? session.loginMember.memberNickname 
+                        : '관리자'}님, 돌아오신 것을 환영합니다.|">
+        소연님, 돌아오신 것을 환영합니다.
+      </span>
     </div>
+
     <div class="dashboard-info">
       Devlog<br />
       <span>Manager Dashboard</span>
@@ -22,42 +30,59 @@
   </header>
 
   <div class="layout">
-    <!-- 사이드바 -->
+
+    <!-- 사이드 바-->
     <aside class="sidebar">
       <nav class="menu">
         <h4>Management</h4>
         <ul>
-          <li class="active"><img src="../../static/images/manager/home.svg" alt="home" /> Home</li>
-          <li><img src="../../static/images/manager/customer.svg" alt="customers" /> Customers</li>
-          <li><img src="../../static/images/manager/report.svg" alt="report" /> Report</li>
-          <li><img src="../../static/images/manager/pay.svg" alt="pay" /> Pay</li>
+          <li>
+            <img th:src="@{/images/manager/home.svg}" alt="home" />
+            <span>Home</span>
+          </li>
+          <li>
+            <img th:src="@{/images/manager/customer.svg}" alt="customers" />
+            <span>Customers</span>
+          </li>
+          <li class="active">
+            <img th:src="@{/images/manager/report.svg}" alt="report" />
+            <span>Report</span>
+          </li>
+          <li>
+            <img th:src="@{/images/manager/pay.svg}" alt="pay" />
+            <span>Pay</span>
+          </li>
         </ul>
       </nav>
 
-      <div class="logout">
-        <img src="icons/logout.svg" alt="logout" /> logout
+      <div class="logout" th:onclick="|location.href='@{/member/logout}'|">
+        <img th:src="@{/images/common/logout.svg}" alt="logout" />
+        <span>Logout</span>
       </div>
     </aside>
 
-    <!-- ===== 메인 ===== -->
     <main class="main">
       <h2>신고 관리</h2>
 
-      <!-- 검색 / 필터 -->
       <div class="search-filter">
+
         <div class="search-box">
           <label>통합 검색</label>
           <input type="text" placeholder="여기에 입력하세요." />
-          <button><img src="../../static/images/manager/search.svg" alt="search" /></button>
+          <button>
+            <img th:src="@{/images/manager/search.svg}" alt="search" />
+          </button>
         </div>
 
         <div class="filter">
           <span>필터</span>
+
           <select>
             <option>선택</option>
             <option>스팸/광고</option>
             <option>욕설/비방</option>
           </select>
+
           <select>
             <option>선택</option>
             <option>처리전</option>
@@ -67,7 +92,7 @@
         </div>
       </div>
 
-      <!-- 신고 목록 -->
+      <!-- ===== 신고 목록 ===== -->
       <table class="report-table">
         <thead>
           <tr>
@@ -82,9 +107,10 @@
             <th>상태</th>
           </tr>
         </thead>
+
         <tbody>
-          <!-- 클릭 시 모달 오픈 -->
-          <tr onclick="openModal('게시글')">
+          <!-- 추후 th:each 로 교체 -->
+          <tr th:onclick="|openModal('게시글')|">
             <td>01</td>
             <td>스팸/광고</td>
             <td>게시글</td>
@@ -108,7 +134,7 @@
     </main>
   </div>
 
-  <!-- 신고 모달 -->
+  <!-- ===== 신고 상세 모달 ===== -->
   <div class="modal-overlay" id="reportModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModal()">✕</button>
@@ -149,7 +175,6 @@
     </div>
   </div>
 
-  <!-- js -->
   <script>
     const modal = document.getElementById("reportModal");
     const moveButton = document.getElementById("moveButton");
@@ -161,7 +186,7 @@
         moveButton.textContent = "해당 게시글 이동";
         moveButton.onclick = () => {
           // TODO: Spring Boot 게시글 상세 페이지 이동
-          // location.href = `/post/detail?postId=xxx`; 뭐 이런느낌..
+          // location.href = `/post/detail?postId=xxx`;
           alert("우하하 아직 스프링부트 연동 전이에요");
         };
       } else {
@@ -178,7 +203,6 @@
       modal.style.display = "none";
     }
 
-    // 모달 외부 클릭 시 닫기
     document.getElementById("reportModal").addEventListener("click", e => {
       if (e.target.classList.contains("modal-overlay")) {
         closeModal();
