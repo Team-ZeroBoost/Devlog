@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,189 +7,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/board/blog/blogDetail.css}">
 </head>
-
 <body>
 
-    <input type="hidden" id="postId" th:value="${post.id}">
-    <input type="hidden" id="loginUserId" th:value="${user != null ? user.id : ''}">
-    <input type="hidden" id="userBalance" th:value="${user != null ? user.point : 0}">
+    <input type="hidden" id="postId" th:value="${post.boardNo}">
+    <input type="hidden" id="loginUserId" th:value="${user != null ? user.memberNo : ''}">
+    
+    <input type="hidden" id="isPaidContent" th:value="${post.isPaid}">
     <input type="hidden" id="postPrice" th:value="${post.price}">
 
     <div class="container">
         <main class="main-content">
-
             <header class="post-header">
                 <div class="post-title-wrap">
-                    <i class="fa-solid fa-crown crown-icon" th:if="${post.price > 0}"></i>
-                    <h1 class="post-title" th:text="${post.title}">제목 영역</h1>
+                    <i class="fa-solid fa-crown crown-icon" th:if="${post.isPaid == 'Y'}"></i>
+                    <h1 class="post-title" th:text="${post.boardTitle}">제목 영역</h1>
                 </div>
 
                 <div class="post-meta">
                     <div class="author-info">
-                        <a th:href="@{/blog/{nickname}(nickname=${post.writerNickname})}" class="author-link">
-                            <span class="author">by <strong th:text="${post.writerNickname}">작성자명</strong></span>
+                        <a th:href="@{/blog/{email}(email=${post.memberEmail})}" class="author-link">
+                            <span class="author">by <strong th:text="${post.memberNickname}">작성자명</strong></span>
                         </a>
-                        <button class="btn-follow" th:if="${user != null and user.id != post.writerId}"
-                            onclick="toggleFollow(this)">+ 팔로우</button>
                     </div>
 
                     <div class="meta-right-group">
-                        <div id="authorActionArea" class="author-actions"
-                            th:if="${user != null and user.id == post.writerId}">
-                            <button id="btnEdit" class="btn-text" onclick="location.href='수정페이지URL'">수정</button>
-                            <span class="divider">|</span>
-                            <button id="btnDelete" class="btn-text delete" onclick="deletePost()">삭제</button>
-                        </div>
-
                         <div class="stats">
-                            <span id="btnPostLike" class="like-btn" onclick="togglePostLike()">
-                                <i class="fa-regular fa-heart" id="postHeartIcon"></i>
-                                <span id="postLikeCount" th:text="${post.likeCount}">0</span>
-                            </span>
-                            <span><i class="fa-regular fa-comment-dots"></i> <span id="commentCount">0</span></span>
-                            <span><i class="fa-regular fa-eye"></i> <span id="viewCount"
-                                    th:text="${post.viewCount}">0</span>+</span>
-                            <span class="report" onclick="openReportModal()"><i class="fa-regular fa-bell"></i>
-                                신고</span>
+                            <span><i class="fa-regular fa-heart"></i> <span th:text="${post.likeCount}">0</span></span>
+                            <span><i class="fa-regular fa-comment-dots"></i> <span th:text="${post.commentCount}">0</span></span>
+                            <span><i class="fa-regular fa-eye"></i> <span th:text="${post.boardCount}">0</span>+</span>
                         </div>
-                        <span class="date"
-                            th:text="${#temporals.format(post.createdDate, 'yyyy.MM.dd')}">2025.01.01</span>
+                        <span class="date" th:text="${post.bCreateDate}">2025.01.01</span>
                     </div>
                 </div>
 
-                <div class="tag-badges">
-                    <span class="badge" th:each="tag : ${post.tags}" th:text="${tag.name}">Tag</span>
+                <div class="tag-badges" th:if="${post.tagList != null}">
+                    <span class="badge" th:each="tag : ${post.tagList}" th:text="${tag}">Tag</span>
                 </div>
             </header>
 
             <div class="content-layout">
-                <article id="articleContent" class="post-body"
-                    th:classappend="${post.price > 0 and !hasPaid} ? 'locked' : ''">
-
-                    <div class="post-image-area" th:if="${post.thumbnailUrl != null}">
-                        <img th:src="${post.thumbnailUrl}" alt="썸네일" style="width:100%;">
-                    </div>
-
-                    <div class="text-content" th:utext="${post.content}">
-                        본문 내용이 들어갑니다.
-                    </div>
-
-                    <div id="lockOverlay" class="lock-overlay" th:if="${post.price > 0 and !hasPaid}">
-                        <div class="lock-card">
-                            <i class="fa-solid fa-crown"></i>
-                            <h3>구매 후 열람이 가능합니다</h3>
-                            <button class="btn-primary" onclick="openPurchaseModal()">구매하기</button>
-                        </div>
-                    </div>
+                <article id="articleContent" class="post-body">
+                     <div class="text-content" th:utext="${post.boardContent}">
+                        본문 내용
+                     </div>
                 </article>
-
-                <aside class="sidebar">
-                    <div class="toc-container">
-                        <h3>목차</h3>
-                        <ul class="toc-list" id="tocList">
-                        </ul>
-                    </div>
-                </aside>
             </div>
-
-            <section class="comments-section">
-                <h3>댓글 <span id="commentTotalCount">0</span></h3>
-
-                <div class="comment-write-area">
-                    <div class="comment-user-profile">
-                        <span th:if="${user == null}">로그인이 필요합니다.</span>
-                        <a th:if="${user != null}" th:href="@{/blog/{nickname}(nickname=${user.nickname})}"
-                            class="profile-link">
-                            <img th:src="${user.profileUrl}" alt="User" class="avatar">
-                            <span class="username" th:text="${user.nickname}">User</span>
-                        </a>
-                    </div>
-                    <div class="input-wrapper">
-                        <textarea id="mainCommentInput" placeholder="댓글을 작성하세요..."
-                            th:disabled="${user == null}"></textarea>
-                        <div class="input-footer">
-                            <button class="btn-submit-styled" onclick="addMainComment()">등록하기</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="commentList" class="comment-list">
-                </div>
-            </section>
-
-        </main>
+            
+            </main>
     </div>
-
-    <div id="modalOverlay" class="modal-overlay hidden">
-        <div id="modalPurchase" class="modal-box hidden">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-crown"></i> 유료 콘텐츠 구매하기</h3>
-                <button class="close-btn" onclick="closeAllModals()">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="payment-section">
-                    <div class="left-col">
-                        <h4>결제 수단</h4>
-                        <div class="bean-card">
-                            <div class="bean-icon"><i class="fa-solid fa-seedling"></i></div>
-                            <div class="bean-info">
-                                <span>내 보유 커피콩</span>
-                                <strong id="displayUserBalance"
-                                    th:text="${user != null ? user.point + '콩' : '0콩'}">0콩</strong>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="right-col">
-                        <h4>구매 정보</h4>
-                        <div class="info-row">
-                            <span class="label">가격 :</span>
-                            <span class="val price" th:text="${post.price + '원'}">0원</span>
-                        </div>
-                        <button class="btn-primary full-width" onclick="processPayment()">구매하기</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="modalNoBalance" class="modal-box small hidden">
-            <div class="modal-content-center">
-                <i class="fa-solid fa-crown purple-icon"></i>
-                <h3>포인트가 부족합니다.<br>충전페이지로 이동하시겠습니까?</h3>
-                <div class="btn-group">
-                    <button class="btn-primary" onclick="location.href='/charge'">예</button>
-                    <button class="btn-secondary" onclick="closeAllModals()">아니오</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="modalSuccess" class="modal-box small hidden">
-            <div class="modal-content-center">
-                <i class="fa-solid fa-crown purple-icon"></i>
-                <h3>구매 완료!</h3>
-                <button class="btn-primary" onclick="location.reload()">확인</button>
-            </div>
-        </div>
-
-        <div id="modalReport" class="modal-box hidden">
-            <div class="modal-header">
-                <h3><i class="fa-regular fa-bell"></i> 게시글 신고하기</h3>
-                <button class="close-btn" onclick="closeAllModals()">×</button>
-            </div>
-            <div class="modal-body">
-                <p class="desc">신고 사유를 선택하거나 입력해주세요.</p>
-                <div class="report-options">
-                    <label><input type="radio" name="reportReason" value="spam"> 스팸 / 부적절한 홍보</label>
-                    <label><input type="radio" name="reportReason" value="abuse"> 욕설 / 비하 발언</label>
-                    <label><input type="radio" name="reportReason" value="info"> 불법 정보 유출</label>
-                    <label><input type="radio" name="reportReason" value="other" checked> 기타</label>
-                </div>
-                <textarea class="report-text" placeholder="상세 사유를 입력해주세요."></textarea>
-                <button class="btn-primary full-width" onclick="submitReport()">신고 접수</button>
-            </div>
-        </div>
-    </div>
-
+    
     <script th:src="@{/js/board/blog/blogDetail.js}"></script>
 </body>
-
 </html>
