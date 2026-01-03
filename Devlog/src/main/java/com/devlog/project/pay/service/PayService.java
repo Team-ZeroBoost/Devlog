@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.devlog.project.pay.dto.PayDTO;
+import com.github.pagehelper.PageInfo;
 
 public interface PayService {
 
@@ -27,6 +28,12 @@ public interface PayService {
 
 	// 은행 코드
 	List<Map<String, Object>> selectBankList();
+
+	// 환전 ok
+	int okExchange(int exchangeNo);
+
+	// 관리자용 조회
+	PageInfo<PayDTO> selectAllBeansHistory(Map<String, Object> paramMap, int cp);
 
 
 
