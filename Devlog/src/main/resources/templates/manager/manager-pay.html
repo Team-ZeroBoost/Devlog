@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>결제 관리</title>
+  <link rel="stylesheet" th:href="@{/css/manager/manager-layout.css}">
+  <link rel="stylesheet" th:href="@{/css/manager/manager-pay.css}">
+</head>
+
+<body>
+  <header class="header">
+    <div class="left-area">
+      <img th:src="@{/images/manager/devlog.svg}" alt="Devlog logo" class="logo" />
+      <span class="welcome"
+        th:text="|${session.loginMember != null ? session.loginMember.memberNickname : '관리자'}님, 돌아오신 것을 환영합니다.|">
+        관리자님, 돌아오신 것을 환영합니다.
+      </span>
+    </div>
+    <div class="dashboard-info">
+      Devlog<br />
+      <span>Manager Dashboard</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <nav class="menu">
+        <h4>Management</h4>
+        <ul>
+          <li><img th:src="@{/images/manager/home.svg}" alt="home" /><span>Home</span></li>
+          <li><img th:src="@{/images/manager/customer.svg}" alt="customers" /><span>Customers</span></li>
+          <li><img th:src="@{/images/manager/report.svg}" alt="report" /><span>Report</span></li>
+          <li class="active" th:onclick="|location.href='@{/admin/dashboard/pay}'|">
+            <img th:src="@{/images/manager/pay.svg}" alt="pay" /><span>Pay</span>
+          </li>
+        </ul>
+      </nav>
+      <div class="logout" th:onclick="|location.href='@{/member/logout}'|">
+        <img th:src="@{/images/common/logout.svg}" alt="logout" /><span>Logout</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h2>결제 관리</h2>
+
+      <div class="search-filter-container">
+        <div class="search-box">
+          <label>통합 검색</label>
+          <div class="input-wrapper">
+            <input type="text" id="searchInput" placeholder="여기에 입력하세요." th:value="${param.query}">
+            <img th:src="@{/images/common/search-icon.png}" onclick="searchPay()" style="cursor:pointer;">
+          </div>
+        </div>
+
+        <div class="filter-box">
+          <label>필터</label>
+          <select id="typeFilter" onchange="searchPay()">
+            <option value="" th:selected="${#strings.isEmpty(param.type)}">전체</option>
+
+            <option value="사용" th:selected="${param.type != null and param.type[0] == '사용'}">사용</option>
+            <option value="충전" th:selected="${param.type != null and param.type[0] == '충전'}">충전</option>
+            <option value="환전" th:selected="${param.type != null and param.type[0] == '환전'}">환전</option>
+            <option value="취소" th:selected="${param.type != null and param.type[0] == '취소'}">취소</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pay-all">
+        <table class="pay-table">
+          <thead>
+            <tr class="category">
+              <th>유형</th>
+              <th>내역</th>
+              <th>금액</th>
+              <th>상태</th>
+              <th>결제일시</th>
+              <th>환전처리일시</th>
+              <th>회원</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="history : ${payList}" th:object="${history}">
+              <td th:text="*{contentType}">유형</td>
+              <td th:text="*{contentType == '환전' ? '커피콩 환전 신청' : (contentType == '취소' ? '커피콩 구매 취소' : '커피콩 충전')}">내용
+              </td>
+              <td th:text="|${#numbers.formatInteger(history.displayPrice ?: 0, 0, 'COMMA')}원|">0원</td>
+              <td>
+                <div class="status-wrapper">
+                  <span th:class="*{status == '요청' ? 'status-req' : 'status-done'}" th:text="*{status}">요청</span>
+                  <div class="account-info-wrapper" th:if="*{contentType == '환전' && status == '요청'}">
+                    <img th:src="@{/images/common/pay-toggle.png}" class="info-icon" onclick="toggleTooltip(this)">
+                    <div class="account-tooltip">
+                      <p><strong th:text="*{returnBankName}">은행</strong> <span th:text="*{exchangeAccount}">계좌</span>
+                      </p>
+                      <p>예금주: <span th:text="*{exchangeHolder}">이름</span></p>
+                      <button class="complete-btn" th:onclick="|approveExchange(*{exchangeNo})|">입금완료</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td th:text="*{payDate}">2026-01-01</td>
+              <td th:text="*{exchangeOkDate != null ? exchangeOkDate : '-'}">-</td>
+              <td th:text="*{memberNickname}">닉네임</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-area" th:if="${pagination != null and pagination.total > 0}">
+        <ul class="pagination">
+
+          <li th:if="${pagination.hasPreviousPage}">
+            <a
+              th:href="@{/admin/dashboard/pay(cp=${pagination.prePage}, query=${param.query}, type=${param.type})}">&lt;</a>
+          </li>
+
+          <th:block th:each="i : ${pagination.navigatepageNums}">
+            <li>
+              <a th:text="${i}" th:href="@{/admin/dashboard/pay(cp=${i}, query=${param.query}, type=${param.type})}"
+                th:classappend="${i == pagination.pageNum} ? 'current'">1</a>
+            </li>
+          </th:block>
+
+          <li th:if="${pagination.hasNextPage}">
+            <a
+              th:href="@{/admin/dashboard/pay(cp=${pagination.nextPage}, query=${param.query}, type=${param.type})}">&gt;</a>
+          </li>
+
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // 툴팁 토글
+    function toggleTooltip(element) {
+      const tooltip = element.nextElementSibling;
+      if (tooltip) tooltip.classList.toggle('active');
+    }
+
+    // 외부 클릭 시 툴팁 닫기
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.account-info-wrapper')) {
+        document.querySelectorAll('.account-tooltip').forEach(el => el.classList.remove('active'));
+      }
+    });
+
+    // 환전 승인
+    function approveExchange(exchangeNo) {
+      if (!confirm("해당 환전 요청을 완료 처리하시겠습니까?")) return;
+      fetch("/admin/pay/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exchangeNo: exchangeNo })
+      })
+        .then(resp => resp.text())
+        .then(result => {
+          if (result > 0) {
+            alert("환전 처리가 완료되었습니다.");
+            location.reload();
+          } else {
+            alert("처리 중 오류가 발생했습니다.");
+          }
+        });
+    }
+
+    // 검색 및 필터링
+    function searchPay() {
+      const query = document.getElementById('searchInput').value.trim();
+      const type = document.getElementById('typeFilter').value;
+
+      const params = new URLSearchParams();
+
+      if (query) params.append('query', query);
+      if (type) params.append('type', type);
+
+      location.href = `/admin/dashboard/pay?${params.toString()}`;
+    }
+
+    // 엔터키 검색 이벤트
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') searchPay();
+    });
+  </script>
+</body>
+
+</html>

@@ -199,5 +199,26 @@
 		BOARD_LIKE WHERE BOARD_NO = ${boardNo}
 	</select>   	
 	
+	<!-- 게시글 수정에서 이미지삭제/추가에서 기존이미지 한개 삭제: 먼저 삭제할 이미지가 데이터베이스에 존재하는지 확인(DB삭제 + 파일삭제용), AJAX -->
+    <select id="selectImageByImgNo" resultMap="boardImgDB_rm">
+        SELECT * FROM BOARD_IMG
+        WHERE IMG_NO = ${imgNo}
+    </select>	
 	
+	<!-- 실시간 알림 전용 ============================================-->
+	<select id="selectReceiverNo" resultType="Long">
+		
+		SELECT MEMBER_NO
+		FROM BOARD
+		WHERE BOARD_NO = ${boardNo}
+		
+	</select>
+	
+	<select id="selectMemberNickname" resultType="string">
+		SELECT MEMBER_NICKNAME
+		FROM MEMBER
+		WHERE MEMBER_NO = ${receiver}
+		
+	</select>
+   	
 </mapper>
