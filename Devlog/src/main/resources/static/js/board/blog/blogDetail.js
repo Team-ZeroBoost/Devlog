@@ -22,6 +22,47 @@ function init() {
 
 // === 게시글 기능 ===
 
+// === blogDetail.js 하단에 추가 ===
+
+
+// 게시글 스크랩 토글 함수
+function togglePostScrap() {
+    if (!loginUserId) {
+        if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/member/login";
+        }
+        return;
+    }
+
+    const scrapIcon = document.getElementById('postScrapIcon');
+    const btnScrap = document.getElementById('btnPostScrap');
+
+    fetch(`/api/blog/scrap/${postId}`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.isScraped) {
+                // 스크랩 성공 시 아이콘 변경 (꽉 찬 북마크)
+                scrapIcon.classList.replace('fa-regular', 'fa-solid');
+                btnScrap.classList.add('active');
+                alert("스크랩 되었습니다. '내 블로그 > 스크랩' 탭에서 확인 가능합니다.");
+            } else {
+                // 스크랩 취소 시
+                scrapIcon.classList.replace('fa-solid', 'fa-regular');
+                btnScrap.classList.remove('active');
+                alert("스크랩이 취소되었습니다.");
+            }
+        }
+    })
+    .catch(err => {
+        console.error("Scrap Error:", err);
+        alert("스크랩 처리 중 오류가 발생했습니다.");
+    });
+}
+
 function togglePostLike() {
     if (!loginUserId) return alert("로그인이 필요합니다.");
     fetch(`/api/blog/like/${postId}`, { method: 'POST' })
@@ -48,9 +89,9 @@ function deletePost() {
     });
 }
 
-// 팔로우/언팔로우 토글 기능 추가
+// 팔로우/언팔로우 토글 함수
 function toggleFollow(btn) {
-    // 1. 로그인 여부 체크
+    // 1. 로그인 여부 체크 (상단에 정의된 loginUserId 활용)
     if (!loginUserId) {
         if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
             location.href = "/member/login";
@@ -58,33 +99,42 @@ function toggleFollow(btn) {
         return;
     }
 
-    // 2. HTML에서 작성자의 이메일 정보를 가져옴 (Thymeleaf로 렌더링된 href에서 추출)
+    // 2. 작성자의 이메일(ID) 추출
+    // HTML의 author-link href가 "/blog/{email}" 형식이므로 마지막 부분을 가져옵니다.
     const authorLink = document.querySelector('.author-link').getAttribute('href');
-    const targetEmail = authorLink.split('/').pop(); // /blog/{email} 형식에서 email만 추출
+    const targetEmail = authorLink.split('/').pop();
 
-    // 3. 서버에 팔로우 요청
+    // 3. 본인 팔로우 방지
+    // (서버에서도 체크하지만 클라이언트에서 먼저 막아주는 것이 UX에 좋습니다)
+
+    // 4. API 호출
     fetch(`/api/blog/follow/${targetEmail}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (res.status === 401) throw new Error("로그인 필요");
+        return res.json();
+    })
     .then(data => {
         if (data.success) {
             if (data.isFollowed) {
-                // 팔로우 성공 시 상태 변경
+                // 팔로우 성공 상태
                 btn.innerText = "팔로잉";
-                btn.classList.add('active');
-                alert("팔로우 되었습니다.");
+                btn.classList.add('active'); // CSS에서 보라색 배경 처리용
+                alert(targetEmail + "님을 팔로우합니다.");
             } else {
-                // 언팔로우 성공 시 상태 변경
+                // 언팔로우 상태
                 btn.innerText = "+ 팔로우";
                 btn.classList.remove('active');
-                alert("팔로우가 취소되었습니다.");
+                alert("팔로우를 취소했습니다.");
             }
-        } else {
-            alert("처리 중 오류가 발생했습니다.");
         }
     })
-    .catch(err => console.error("Follow Error:", err));
+    .catch(err => {
+        console.error("Follow Error:", err);
+        alert("팔로우 처리 중 오류가 발생했습니다.");
+    });
 }
 
 // === 댓글 기능 ===
