@@ -11,17 +11,18 @@ import com.devlog.project.report.model.entity.Report;
 public interface ManagerReportRepository extends JpaRepository<Report, Long> {
 
     @Query("""
-        select new com.devlog.project.manager.model.dto.ReportManagerDTO(
-            r.reportId,
-            rc.reportType,
-            r.targetType,
-            r.content,
-            reporter.memberNickname,
-            reported.memberNickname,
-            r.createdAt,
-            r.processedAt,
-            r.status
-        )
+		select new com.devlog.project.manager.model.dto.ReportManagerDTO(
+		    r.reportId,
+		    r.targetId,
+		    rc.reportType,
+		    r.targetType,
+		    r.content,
+		    reporter.memberNickname,
+		    reported.memberNickname,
+		    r.createdAt,
+		    r.processedAt,
+		    r.status
+		)
         from Report r
         join r.reportCode rc
         join r.reporter reporter
@@ -29,4 +30,15 @@ public interface ManagerReportRepository extends JpaRepository<Report, Long> {
         order by r.createdAt desc
     """)
     List<ReportManagerDTO> findAllForManager();
+    
+
+    @Query("""
+        select r
+        from Report r
+        where r.status = 'PENDING'
+          and r.targetType = 'BOARD'
+    """)
+    List<Report> findByPending();
 }
+
+
