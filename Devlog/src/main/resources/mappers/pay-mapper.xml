@@ -200,5 +200,33 @@
 	    </where>
 	    ORDER BY BEANS_HISTORY DESC
 	</select>
+	
+	
+	
+	<insert id="insertBeansTrade" parameterType="PayDTO">
+        <selectKey keyProperty="tradeNo" resultType="_int" order="BEFORE">
+            SELECT SEQ_TRADE_NO.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO COFFEE_BEANS_TRADE (
+            TRADE_NO,
+            BUYER_NO,
+            SELLER_NO,
+            CONTENT_TYPE,
+            TRADE_AT,
+            CONTENT_ID,
+            PRICE
+        ) VALUES (
+            #{tradeNo},
+            #{buyerNo},
+            #{sellerNo},
+            #{contentType},
+            SYSDATE,
+            #{contentId},
+            #{price}
+        )
+    </insert>
+
+
+
 		
 </mapper>

@@ -49,6 +49,13 @@
                         </div>
 
                         <div class="stats">
+                            <span class="scrap-btn" id="btnPostScrap" onclick="togglePostScrap()"
+                                th:classappend="${isScraped} ? 'active' : ''">
+                                <i th:class="${isScraped} ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"
+                                    id="postScrapIcon"></i>
+                                <span>스크랩</span>
+                            </span>
+
                             <span class="like-btn" id="btnPostLike" onclick="togglePostLike()">
                                 <i class="fa-regular fa-heart" id="postHeartIcon"></i>
                                 <span id="postLikeCount" th:text="${post.likeCount}">0</span>
@@ -133,7 +140,7 @@
                 <h3>콩이 부족합니다!</h3>
                 <p>충전 페이지로 이동하시겠습니까?</p>
                 <div class="btn-group">
-                    <button class="btn-primary" onclick="location.href='/charge'">충전하러 가기</button>
+                    <button class="btn-primary" onclick="location.href='/coffeebeans'">충전하러 가기</button>
                     <button class="btn-secondary" onclick="closeAllModals()">취소</button>
                 </div>
             </div>
