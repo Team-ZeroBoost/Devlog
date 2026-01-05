@@ -97,22 +97,15 @@ public class ManagerReportServiceImpl implements ManagerReportService {
     public void syncResolvedReports() {
 
         List<Report> reports = reportRepository.findPendingBoardReports();
-        System.out.println("[SYNC] pending board reports size = " + reports.size());
 
         for (Report report : reports) {
             Long boardNo = report.getTargetId();
-            int isDeleted = managerReportMapper.isBoardDeleted(boardNo);
 
-            System.out.println(
-                "[SYNC] reportId=" + report.getReportId()
-                + ", boardNo=" + boardNo
-                + ", isDeleted=" + isDeleted
-            );
+            int isDeleted = managerReportMapper.isBoardDeleted(boardNo);
 
             if (isDeleted == 1) {
                 report.setStatus(ReportStatus.RESOLVED);
                 report.setProcessedAt(LocalDateTime.now());
-                System.out.println("[SYNC] -> RESOLVED 처리됨");
             }
         }
     }
