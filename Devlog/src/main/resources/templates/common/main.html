@@ -59,13 +59,31 @@
     <section class="news-section">
       <div class="news-header">
         <h2>지식을 더하는 뉴스</h2>
-        <a th:href="@{/news/list}" class="more-link">더보기 &gt;</a>
+        <a th:href="@{/ITnews}" class="more-link">더보기 &gt;</a>
       </div>
 
-      <div class="news-grid" id="newsGrid">
-        <!-- 뉴스 카드 추가 예정 -->
+      <div class="news-grid">
+        <div class="news-card"
+            th:each="news, stat : ${itnews}"
+            th:if="${stat.index < 4}"
+            th:onclick="|location.href='/ITnews/${news.boardNo}'|"
+            style="cursor:pointer;">
+
+          <div class="news-text">
+            <h3 class="news-title" th:text="${news.boardTitle}"></h3>
+            <p class="news-desc"
+              th:text="${#strings.abbreviate(news.boardContent, 80)}">
+            </p>
+          </div>
+
+          <div class="news-thumb">
+            <img th:src="${news.imgPath != null ? news.imgPath : '/images/common/default-thumb.png'}"
+                alt="news thumbnail">
+          </div>
+        </div>
       </div>
     </section>
+
 
 
     <!-- 카페 추천 -->
