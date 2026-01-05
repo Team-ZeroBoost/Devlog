@@ -24,7 +24,8 @@ public interface ManagerReportRepository extends JpaRepository<Report, Long> {
 		    reported.memberNickname,
 		    r.createdAt,
 		    r.processedAt,
-		    r.status
+		    r.status,
+		    r.messageContent
 		)
         from Report r
         join r.reportCode rc

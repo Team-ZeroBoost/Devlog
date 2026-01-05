@@ -30,6 +30,8 @@ public class ReportManagerDTO {
     private LocalDateTime processDate;
 
     private ReportStatus status;
+    
+    private String messageContent;
 
     public ReportManagerDTO(
     	    Long reportId,
@@ -41,7 +43,8 @@ public class ReportManagerDTO {
     	    String targetNickname,
     	    LocalDateTime reportDate,
     	    LocalDateTime processDate,
-    	    ReportStatus status
+    	    ReportStatus status,
+    	    String messageContent
     	) {
         this.reportId = reportId;
         this.targetId = targetId;
@@ -53,5 +56,6 @@ public class ReportManagerDTO {
         this.reportDate = reportDate;
         this.processDate = processDate;
         this.status = status;
+        this.messageContent = messageContent;
     }
 }

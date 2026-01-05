@@ -119,6 +119,7 @@
               th:data-reporter="${report.reporterNickname}"
               th:data-target="${report.targetNickname}"
               th:data-report-date="${#temporals.format(report.reportDate, 'yyyy.MM.dd')}"
+              th:data-message-content="${report.messageContent}"
               onclick="openModal(this)">
 
             <!-- 번호 -->
@@ -197,7 +198,8 @@
       </div>
 
       <textarea class="modal-content" id="modalReason" readonly></textarea>
-
+      <!-- 신고된 채팅 메시지 -->
+      <div class="chat-preview" id="modalMessageContent"></div>
       <div class="modal-footer">
         <button class="move-btn" id="moveButton">해당 게시글 이동</button>
       </div>

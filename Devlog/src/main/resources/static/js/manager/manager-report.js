@@ -1,5 +1,6 @@
 const modal = document.getElementById("reportModal");
 const moveButton = document.getElementById("moveButton");
+const modalMessageContent = document.getElementById("modalMessageContent");
 
 let currentTargetUrl = null;
 let currentTargetType = null;
@@ -12,6 +13,7 @@ const modalReportDate = document.getElementById("modalReportDate");
 const modalReason = document.getElementById("modalReason");
 const modalTargetName = document.getElementById("modalTargetName");
 
+
 // 신고 목록 행 클릭 시
 function openModal(row) {
   const reportId = row.dataset.reportNo;
@@ -22,6 +24,7 @@ function openModal(row) {
   const reportReason = row.dataset.reportReason;
   const targetName = row.dataset.target;
   const reportDate = row.dataset.reportDate;
+  const messageContent = row.dataset.messageContent;
 
   currentTargetUrl = row.dataset.targetUrl;
   currentTargetType = targetType;
@@ -32,11 +35,21 @@ function openModal(row) {
   modalReason.value = reportReason;
   modalTargetName.textContent = targetName;
 
-  moveButton.textContent =
-    targetType === "BOARD" ? "해당 게시글 이동" : "신고된 메시지 보기";
+  if (targetType === "BOARD") {
+    moveButton.textContent = "해당 게시글 이동";
+    modalMessageContent.classList.remove("open");
+  } else {
+    moveButton.textContent = "신고된 메시지 확인";
+
+    modalMessageContent.textContent =
+      messageContent || "신고된 메시지 내용이 없습니다.";
+
+    modalMessageContent.classList.remove("open");
+  }
 
   modal.style.display = "flex";
 }
+
 
 
 
@@ -67,8 +80,9 @@ moveButton.addEventListener("click", function () {
 
   if (currentTargetType === "BOARD") {
     location.href = currentTargetUrl;
-  } else {
-    // 메시지는 이동 안 하고 모달/별도 UI
-    alert("신고된 메시지를 표시합니다.");
+    return;
   }
+
+  // 채팅 신고
+  modalMessageContent.classList.toggle("open");
 });
