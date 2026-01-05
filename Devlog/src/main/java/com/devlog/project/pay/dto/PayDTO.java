@@ -68,6 +68,11 @@ public class PayDTO {
     private String status; // "요청", "완료"
     private String memberNickname;
     private String returnBankName;
+    
+    
+    // 구독
+    @JsonProperty("subscribeNo")
+    private int subscribeNo;
 	
 	
 	
