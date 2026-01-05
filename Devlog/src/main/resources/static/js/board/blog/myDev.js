@@ -325,11 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // ============================================================
-    // [핵심] 게시글 로딩 함수
-    // ============================================================
+    // 게시글 로딩 함수 부분
     async function renderPosts(isReset = false) {
-
         if (isLoading) return;
 
         if (isReset) {
@@ -345,78 +342,68 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loader) loader.style.display = 'block';
 
         try {
-            // [추가됨 3] URL 끝에 &type=${currentType} 추가!
-            // blogOwnerId는 HTML 파일의 th:inline="javascript"에서 넘어옴
             const url = `/api/blog/${blogOwnerId}/list?page=${page}&size=${PAGE_SIZE}&sort=${currentSort}&type=${currentType}`;
-
             const response = await fetch(url);
             if (!response.ok) throw new Error('데이터 로드 실패');
 
-            const data = await response.json(); // Map 반환
-            const posts = data.content; // 실제 리스트
+            const data = await response.json();
+            const posts = data.content;
 
             if ((!posts || posts.length === 0) && page === 0) {
-                // 목록이 비었을 때 메시지 (아이콘 추가로 조금 더 예쁘게)
                 listWrap.innerHTML = `
-                    <div style="padding:50px; text-align:center; width:100%; color:#666;">
-                        <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>작성된 글이 없습니다.</p>
-                    </div>`;
-                isLastPage = true;
-            } else if (!posts || posts.length === 0) {
+                <div style="padding:50px; text-align:center; width:100%; color:#666;">
+                    <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>작성된 글이 없습니다.</p>
+                </div>`;
                 isLastPage = true;
             }
 
             if (posts) {
                 posts.forEach(post => {
+                    // [수정 포인트 1] 데이터 매핑 방어 코드 (스네이크 케이스와 카멜 케이스 모두 대응)
+                    const bNo = post.boardNo || post.board_no;
+                    const bTitle = post.boardTitle || post.board_title || "제목 없음";
+                    const bContent = post.boardContent || post.board_content || "";
+                    const bDate = post.bcreateDate || post.bcreate_date || post.bCreateDate || "";
+                    const lCount = post.likeCount !== undefined ? (post.likeCount || post.like_count || 0) : 0;
+                    const cCount = post.commentCount !== undefined ? (post.commentCount || post.comment_count || 0) : 0;
+                    const vCount = post.boardCount !== undefined ? (post.boardCount || post.board_count || 0) : 0;
+                    const isPaidStatus = post.isPaid || post.is_paid || 'N';
 
-                    // 썸네일 추출 (본문에서 이미지 꺼내기 + 없으면 로고)
-                    const thumb = extractFirstImage(post.boardContent);
+                    const thumb = extractFirstImage(bContent);
+                    const desc = stripHtml(bContent);
 
-                    // 본문 내용 태그 제거 (글자만 남기기)
-                    const desc = stripHtml(post.boardContent);
-
-                    // 태그 리스트 처리
                     let tagsHtml = '';
-                    if (post.tagList && post.tagList.length > 0) {
-                        post.tagList.forEach(t => {
+                    const tagList = post.tagList || post.tag_list;
+                    if (tagList && tagList.length > 0) {
+                        tagList.forEach(t => {
                             tagsHtml += `<span class="tag-pill">#${t}</span> `;
                         });
                     }
 
-                    // 유료 글 표시 아이콘
-                    const paidIcon = (post.isPaid === 'Y')
+                    const paidIcon = (isPaidStatus === 'Y')
                         ? '<span style="background:#ffca28; color:#fff; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px; vertical-align: middle;">Premium</span>'
                         : '';
 
-                    // HTML 생성
+                    // [수정 포인트 2] HTML 내 변수명 교체
                     const html = `
-                        <article class="post-item" onclick="location.href='/blog/detail/${post.boardNo}'" style="cursor:pointer;">
-                            <div class="post-main">
-                                <h2>${paidIcon}${post.boardTitle}</h2>
-                                <p class="post-content">${desc}</p> <div class="post-stats">
-                                    <span><i class="fa-solid fa-heart"></i> ${post.likeCount}</span>
-                                    <span><i class="fa-solid fa-comment"></i> ${post.commentCount}</span>
-                                    <span><i class="fa-solid fa-eye"></i> ${post.boardCount}</span> 
-                                    <span>${post.bcreateDate}</span> 
-                                </div>
-                                <div class="post-tags">${tagsHtml}</div>
+                    <article class="post-item" onclick="location.href='/blog/detail/${bNo}'" style="cursor:pointer;">
+                        <div class="post-main">
+                            <h2>${paidIcon}${bTitle}</h2>
+                            <p class="post-content">${desc}</p> 
+                            <div class="post-stats">
+                                <span><i class="fa-solid fa-heart"></i> ${lCount}</span>
+                                <span><i class="fa-solid fa-comment"></i> ${cCount}</span>
+                                <span><i class="fa-solid fa-eye"></i> ${vCount}</span> 
+                                <span>${bDate}</span> 
                             </div>
-                            <img src="${thumb}" class="post-thumb-img" alt="thumbnail" onerror="this.src='/images/logo.png'">
-                        </article>`;
+                            <div class="post-tags">${tagsHtml}</div>
+                        </div>
+                        <img src="${thumb}" class="post-thumb-img" alt="thumbnail" onerror="this.src='/images/logo.png'">
+                    </article>`;
 
                     listWrap.insertAdjacentHTML('beforeend', html);
                 });
-
-                // [추가] 데이터가 로드됐는데 스크롤이 안 생길 정도로 적으면, 자동으로 다음 페이지 로드 시도
-                const observerEl = document.getElementById('infinite-sentinel');
-                if (observerEl && !isLastPage && document.body.scrollHeight <= window.innerHeight) {
-                    // 약간의 딜레이 후 재호출
-                    setTimeout(() => {
-                        page++; // 페이지 수동 증가 후 호출
-                        renderPosts();
-                    }, 500);
-                }
             }
 
             if (data.last) {
@@ -428,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error:", error);
-            alert("데이터를 불러오는 중 오류가 발생했습니다.");
         } finally {
             isLoading = false;
         }
