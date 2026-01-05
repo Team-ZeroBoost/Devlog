@@ -93,17 +93,8 @@ public class BlogServiceImpl implements BlogService {
         }
         
         // 태그 처리
-        if (blogDTO.getTagList() != null && !blogDTO.getTagList().isEmpty()) {
-            for (String tagName : blogDTO.getTagList()) {
-                blogMapper.insertTag(tagName);
-                Long tagNo = blogMapper.selectTagNoByName(tagName);
-
-                Map<String, Object> tagParams = new HashMap<>();
-                tagParams.put("boardNo", blogDTO.getBoardNo());
-                tagParams.put("tagNo", tagNo);
-                blogMapper.insertBlogTag(tagParams);
-            }
-        }
+        processTags(blogDTO);
+        
         return blogDTO.getBoardNo();
     }
 
@@ -119,7 +110,7 @@ public class BlogServiceImpl implements BlogService {
         params.put("limit", size);
         params.put("sort", sort);
         
-        // [추가] 현재 로그인한 사람의 번호를 가져와서 넘겨줌 (스크랩 조회용)
+        // 현재 로그인한 사람의 번호를 가져와서 넘겨줌 (스크랩 조회용)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             Member loginUser = memberRepository.findByMemberEmailAndMemberDelFl(auth.getName(), CommonEnums.Status.N).orElse(null);
@@ -471,21 +462,22 @@ public class BlogServiceImpl implements BlogService {
         }
     }
     
-    // 썸네일 저장을 위한 내부 공통 메서드
+    // [헬퍼] 썸네일 저장을 위한 내부 메서드 (BOARD_IMG 테이블 사용)
     private void insertThumbnail(Long boardNo, String fullPath) {
-        // fullPath 예시: "/images/blog/uuid_filename.png"
-        // DB 구조에 맞게 PATH와 RENAME 분리 (마지막 '/' 기준으로 분리)
+        // 예: /images/blog/uuid_filename.png
         int lastSlash = fullPath.lastIndexOf("/");
-        String imgPath = fullPath.substring(0, lastSlash + 1);
-        String imgRename = fullPath.substring(lastSlash + 1);
+        
+        // 방어 로직: 슬래시가 없으면 전체를 파일명으로
+        String imgPath = (lastSlash > -1) ? fullPath.substring(0, lastSlash + 1) : "";
+        String imgRename = (lastSlash > -1) ? fullPath.substring(lastSlash + 1) : fullPath;
 
         Map<String, Object> imgMap = new HashMap<>();
         imgMap.put("boardNo", boardNo);
-        imgMap.put("imgPath", imgPath);    // "/images/blog/"
-        imgMap.put("imgRename", imgRename); // "uuid_filename.png"
+        imgMap.put("imgPath", imgPath);    
+        imgMap.put("imgRename", imgRename); 
         imgMap.put("imgOrder", 0);         // 대표 이미지는 항상 0번
         
-        blogMapper.insertBoardImg(imgMap); // Mapper에 추가해야 함
+        blogMapper.insertBoardImg(imgMap); 
     }
     
     // 태그 처리 로직 분리
@@ -494,6 +486,7 @@ public class BlogServiceImpl implements BlogService {
             for (String tagName : blogDTO.getTagList()) {
                 blogMapper.insertTag(tagName);
                 Long tagNo = blogMapper.selectTagNoByName(tagName);
+                
                 Map<String, Object> tagParams = new HashMap<>();
                 tagParams.put("boardNo", blogDTO.getBoardNo());
                 tagParams.put("tagNo", tagNo);

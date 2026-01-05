@@ -86,6 +86,7 @@ public interface BlogMapper {
     
     // 썸네일(BOARD_IMG) 관련
     int insertBoardImg(Map<String, Object> params);
+    
     int deleteThumbnail(Long boardNo); // IMG_ORDER = 0인 것만 삭제
     
     

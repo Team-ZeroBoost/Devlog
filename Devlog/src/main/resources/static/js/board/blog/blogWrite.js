@@ -12,19 +12,26 @@ const editor = new toastui.Editor({
     initialValue: document.getElementById('initialContent').value || '',
     hooks: {
         addImageBlobHook: (blob, callback) => {
+            // 폼 데이터 생성
             const formData = new FormData();
             formData.append('image', blob);
 
+            // 서버로 업로드 요청
             fetch('/api/blog/imageUpload', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
-            .then(url => {
-                const imgTag = `<img src="${url}" alt="이미지" style="max-width:100%;">`;
-                editor.insertText(imgTag);
+            .then(response => {
+                if (!response.ok) throw new Error('업로드 실패');
+                return response.text(); // 서버가 반환한 URL (String) 받기
             })
-            .catch(error => console.error('이미지 업로드 실패:', error));
+            .then(url => {
+                callback(url, '이미지'); 
+            })
+            .catch(error => {
+                console.error('이미지 업로드 실패:', error);
+                alert('이미지 업로드에 실패했습니다.');
+            });
         }
     }
 });
