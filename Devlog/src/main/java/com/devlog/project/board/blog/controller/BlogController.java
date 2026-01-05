@@ -86,7 +86,7 @@ public class BlogController {
 		return blogService.uploadImage(image);
 	}
 
-
+	
 	@GetMapping("/blog/{blogId:.+}") 
     public String blogMain(@PathVariable("blogId") String blogId, Model model) {
         
@@ -128,6 +128,9 @@ public class BlogController {
             model.addAttribute("totalVisit", myBlogData.getTotalVisit());
             model.addAttribute("postCount", myBlogData.getPostCount());
             model.addAttribute("todayVisit", myBlogData.getTodayVisit());
+            
+            // 구독료
+            model.addAttribute("subPrice", myBlogData.getSubPrice());
             
          // 4. 내가 팔로우 중인지 여부 확인
             boolean isFollowing = false;
