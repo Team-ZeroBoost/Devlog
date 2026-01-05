@@ -34,6 +34,9 @@ public interface PayService {
 
 	// 관리자용 조회
 	PageInfo<PayDTO> selectAllBeansHistory(Map<String, Object> paramMap, int cp);
+	
+	// 커피콩 거래
+	int insertTrade(PayDTO trade);
 
 
 

@@ -132,6 +132,30 @@ public class PayController {
 	}
 	
 	
+	// 커피콩 거래
+	@PostMapping("/payment/trade")
+	@ResponseBody
+	public ResponseEntity<?> processTrade(@RequestBody Map<String, Object> request,
+	        @SessionAttribute("loginMember") MemberLoginResponseDTO loginMember) {
+	    
+	    try {
+	        // DTO 객체 생성 및 데이터 세팅
+	        PayDTO trade = new PayDTO();
+	        trade.setBuyerNo(loginMember.getMemberNo());
+	        trade.setContentType((String) request.get("contentType"));
+	        trade.setContentId(Long.parseLong(request.get("contentId").toString()));
+	        trade.setPrice(Integer.parseInt(request.get("price").toString()));
+
+	        // 통합 거래 서비스 호출 (DTO를 넘김)
+	        int result = payService.insertTrade(trade);
+	        
+	        return ResponseEntity.ok(Map.of("result", result));
+	    } catch (Exception e) {
+	        e.printStackTrace(); // 에러 로그 확인용
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
+
 }
 	
 	

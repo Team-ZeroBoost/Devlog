@@ -132,8 +132,9 @@ public class ReportServiceImpl implements ReportService {
 	public String reportInsertBoard(ReportRequestDTO req) {
 	    // 중복 신고 확인
 	    int count = reportMapper.checkReportExist(req);
-	    
+	    System.out.println("count:"+ count);
 	    if (count > 0) {
+	    	
 	        return "이미 신고한 게시글입니다.";
 	    }
 
