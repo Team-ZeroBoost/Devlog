@@ -294,21 +294,47 @@ function closeAllModals() {
     document.querySelectorAll('.modal-box').forEach(box => box.classList.add('hidden'));
 }
 
+/**
+ * 구매 확정 처리 (서버의 PayController로 요청 전송)
+ */
 function processPayment() {
-    document.getElementById('modalPurchase').classList.add('hidden');
-    if (userBalance < postPrice) {
-        document.getElementById('modalNoBalance').classList.remove('hidden');
+    const postId = document.getElementById("postId").value;
+    const price = document.getElementById("postPrice").value;
+    const loginUserId = document.getElementById("loginUserId").value;
+
+    if (!loginUserId) {
+        alert("로그인이 필요한 서비스입니다.");
         return;
     }
-    fetch('/api/payment/purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: postId, amount: postPrice })
+
+    // 서버로 구매 거래 요청 (PayController의 /payment/trade 호출)
+    fetch("/payment/trade", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            contentType: "POST",     // 거래 유형 (게시글)
+            contentId: postId,       // 게시글 번호
+            price: price             // 소모될 콩 개수
+        })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) document.getElementById('modalSuccess').classList.remove('hidden');
-        else alert("결제 실패: " + data.message);
+    .then(resp => resp.json())
+    .then(result => {
+        // 서비스에서 리턴한 결과값(int)이 0보다 크면 성공
+        if (result > 0) {
+            // 성공 시
+            document.getElementById("modalPurchase").classList.add("hidden");
+            document.getElementById("modalSuccess").classList.remove("hidden");
+        } else {
+            // 실패 시 
+            document.getElementById("modalPurchase").classList.add("hidden");
+            document.getElementById("modalNoBalance").classList.remove("hidden");
+        }
+    })
+    .catch(err => {
+        console.error("구매 처리 중 오류 발생:", err);
+        alert("구매 처리 중 서버 오류가 발생했습니다.");
     });
 }
 

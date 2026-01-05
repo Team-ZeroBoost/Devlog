@@ -64,7 +64,6 @@ public class ReportController {
 			// 여기서 mybatis 흐름으로 짜시면 아마 될 거 같아요
 			 result = service.reportInsertBoard(req);
 			 
-			 result = "게시글 신고가 접수되었습니다.";
 			
 		}
 		
