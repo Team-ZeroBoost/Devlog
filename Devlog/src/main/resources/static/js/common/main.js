@@ -151,26 +151,7 @@ latestPosts.forEach((post) => {
   latestFeedGrid.insertAdjacentHTML("beforeend", card);
 });
 
-// 활동중인 친구 목록 나중에 요청으로 바꿀거임 지금은 그냥 더미
-const activeFriends = [
-  { img: "/images/common/profile2.jpeg", name: "유저일" },
-  { img: "/images/common/profile4.jpg", name: "유저이" },
-  { img: "/images/common/profile1.png", name: "유저삼" },
-  { img: "/images/common/profile5.png", name: "유저사" },
-  { img: "/images/common/profile6.png", name: "유저일오" },
-  { img: "/images/common/profile3.jpg", name: "유저이이" },
-];
 
-const friendsList = document.getElementById("friendsList");
-
-activeFriends.forEach((friend) => {
-  const el = `
-  <div class="friend">
-    <img src="${friend.img}" alt="${friend.name}" title="${friend.name}" />
-  </div>
-`;
-  friendsList.insertAdjacentHTML("beforeend", el);
-});
 
 const newsList = [
   {
@@ -305,6 +286,34 @@ function connectOnlineStatus() {
   );
 }
 
+
+// // 활동중인 친구 목록 나중에 요청으로 바꿀거임 지금은 그냥 더미
+// const activeFriends = [
+//   { img: "/images/common/profile2.jpeg", name: "유저일" },
+//   { img: "/images/common/profile4.jpg", name: "유저이" },
+//   { img: "/images/common/profile1.png", name: "유저삼" },
+//   { img: "/images/common/profile5.png", name: "유저사" },
+//   { img: "/images/common/profile6.png", name: "유저일오" },
+//   { img: "/images/common/profile3.jpg", name: "유저이이" },
+// ];
+
+// const friendsList = document.getElementById("friendsList");
+
+// activeFriends.forEach((friend) => {
+//   const el = `
+//   <div class="friend">
+//     <img src="${friend.img}" alt="${friend.name}" title="${friend.name}" />
+//   </div>
+// `;
+//   friendsList.insertAdjacentHTML("beforeend", el);
+// });
+
+
+
+
+
+
+
 // 화면에 친구 목록
 function updateFriendsUI(users) {
   const friendsList = document.getElementById("friendsList");
@@ -318,13 +327,15 @@ function updateFriendsUI(users) {
     return;
   }
 
-  users.forEach((name) => {
-    const friendHtml = `
-            <div class="friend active" title="${name}">
-                <img src="/images/common/user.png" alt="${name}">
-                <span class="friend-name" style="font-size:11px; display:block; text-align:center;">${name}</span>
-            </div>
-        `;
+  users.forEach((user) => {
+  const friendHtml = `
+        <div class="friend active" title="${user.name}">
+          <img src="${user.profile_img}" alt="${user.name}">
+          <span class="friend-name" style="font-size:11px; display:block; text-align:center; margin-top:4px;">
+            ${user.name.split('@')[0]}
+          </span>
+        </div>
+      `;
     friendsList.insertAdjacentHTML("beforeend", friendHtml);
   });
 }
@@ -332,3 +343,9 @@ function updateFriendsUI(users) {
 document.addEventListener("DOMContentLoaded", function () {
   connectOnlineStatus();
 });
+
+
+
+
+
+

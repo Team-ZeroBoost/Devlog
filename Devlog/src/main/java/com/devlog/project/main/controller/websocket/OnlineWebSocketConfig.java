@@ -10,16 +10,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class OnlineWebSocketConfig {
+	
+	
+	
+	@Getter
+	@AllArgsConstructor
+	class OnlineUser {
+		private String name;
+		private String profileImg;
+	}
 
     private final SimpMessageSendingOperations messagingTemplate;
 
     // 현재 접속 중인 유저 저장소 (세션ID : 유저정보)
-    private static final Map<String, String> sessionUserMap = new ConcurrentHashMap<>();
+    private static final Map<String, OnlineUser> sessionUserMap = new ConcurrentHashMap<>();
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -29,15 +40,23 @@ public class OnlineWebSocketConfig {
         if (headerAccessor.getUser() != null) {
             String sessionId = headerAccessor.getSessionId();
             
-            String username = headerAccessor.getUser().getName(); 
+            String name = headerAccessor.getUser().getName(); 
+            String profileImg = "/images/user.png";
             
             // 맵에 저장
-            sessionUserMap.put(sessionId, username);
+            sessionUserMap.put(sessionId, new OnlineUser(name, profileImg));
             
+            // 중복 제거
+            var distinctUsers = sessionUserMap.values().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                    OnlineUser::getName, // 키: 이름
+                    u -> u,             // 값: 유저 객체
+                    (existing, replacement) -> existing // 중복 시 기존 것 유지
+                )).values();
             // 모든 접속자에게 "누가 온라인인지" 목록을 쏴줌
             messagingTemplate.convertAndSend("/topic/friends", sessionUserMap.values());
             
-            System.out.println("접속 감지: " + username);
+            System.out.println("접속 감지: " + name);
         }
     }
 
@@ -51,5 +70,7 @@ public class OnlineWebSocketConfig {
         
         // 나갔을 때도 최신 목록 갱신
         messagingTemplate.convertAndSend("/topic/friends", sessionUserMap.values());
+        
+        System.out.println("연결 종료"+ sessionId);
     }
 }
