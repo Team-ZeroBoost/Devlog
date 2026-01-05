@@ -39,11 +39,11 @@ public class PayDTO {
 	
 	// 커피콩 거래
 	private int tradeNo;
-	private int buyerNo; //구매자
-	private int sellerNo; //구매당한사람
+	private Long buyerNo; //구매자
+	private Long sellerNo; //구매당한사람
 	private String contentType; //컨텐츠, 구독, 챗봇
 	private String tradeAt; // 거래 일시
-	private int contentId; // 대상 ID(게시글번호, 회원번호, 챗봇번호)
+	private Long contentId; // 대상 ID(게시글번호, 회원번호, 챗봇번호)
 	
 	
 	// 환전     

@@ -22,6 +22,47 @@ function init() {
 
 // === 게시글 기능 ===
 
+// === blogDetail.js 하단에 추가 ===
+
+
+// 게시글 스크랩 토글 함수
+function togglePostScrap() {
+    if (!loginUserId) {
+        if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/member/login";
+        }
+        return;
+    }
+
+    const scrapIcon = document.getElementById('postScrapIcon');
+    const btnScrap = document.getElementById('btnPostScrap');
+
+    fetch(`/api/blog/scrap/${postId}`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.isScraped) {
+                // 스크랩 성공 시 아이콘 변경 (꽉 찬 북마크)
+                scrapIcon.classList.replace('fa-regular', 'fa-solid');
+                btnScrap.classList.add('active');
+                alert("스크랩 되었습니다. '내 블로그 > 스크랩' 탭에서 확인 가능합니다.");
+            } else {
+                // 스크랩 취소 시
+                scrapIcon.classList.replace('fa-solid', 'fa-regular');
+                btnScrap.classList.remove('active');
+                alert("스크랩이 취소되었습니다.");
+            }
+        }
+    })
+    .catch(err => {
+        console.error("Scrap Error:", err);
+        alert("스크랩 처리 중 오류가 발생했습니다.");
+    });
+}
+
 function togglePostLike() {
     if (!loginUserId) return alert("로그인이 필요합니다.");
     fetch(`/api/blog/like/${postId}`, { method: 'POST' })
@@ -45,6 +86,54 @@ function deletePost() {
     fetch(`/api/blog/delete/${postId}`, { method: 'DELETE' })
     .then(res => {
         if(res.ok) { alert("삭제되었습니다."); location.href = '/blog/list'; }
+    });
+}
+
+// 팔로우/언팔로우 토글 함수
+function toggleFollow(btn) {
+    // 1. 로그인 여부 체크 (상단에 정의된 loginUserId 활용)
+    if (!loginUserId) {
+        if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/member/login";
+        }
+        return;
+    }
+
+    // 2. 작성자의 이메일(ID) 추출
+    // HTML의 author-link href가 "/blog/{email}" 형식이므로 마지막 부분을 가져옵니다.
+    const authorLink = document.querySelector('.author-link').getAttribute('href');
+    const targetEmail = authorLink.split('/').pop();
+
+    // 3. 본인 팔로우 방지
+    // (서버에서도 체크하지만 클라이언트에서 먼저 막아주는 것이 UX에 좋습니다)
+
+    // 4. API 호출
+    fetch(`/api/blog/follow/${targetEmail}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => {
+        if (res.status === 401) throw new Error("로그인 필요");
+        return res.json();
+    })
+    .then(data => {
+        if (data.success) {
+            if (data.isFollowed) {
+                // 팔로우 성공 상태
+                btn.innerText = "팔로잉";
+                btn.classList.add('active'); // CSS에서 보라색 배경 처리용
+                alert(targetEmail + "님을 팔로우합니다.");
+            } else {
+                // 언팔로우 상태
+                btn.innerText = "+ 팔로우";
+                btn.classList.remove('active');
+                alert("팔로우를 취소했습니다.");
+            }
+        }
+    })
+    .catch(err => {
+        console.error("Follow Error:", err);
+        alert("팔로우 처리 중 오류가 발생했습니다.");
     });
 }
 
@@ -255,21 +344,47 @@ function closeAllModals() {
     document.querySelectorAll('.modal-box').forEach(box => box.classList.add('hidden'));
 }
 
+/**
+ * 구매 확정 처리 (서버의 PayController로 요청 전송)
+ */
 function processPayment() {
-    document.getElementById('modalPurchase').classList.add('hidden');
-    if (userBalance < postPrice) {
-        document.getElementById('modalNoBalance').classList.remove('hidden');
+    const postId = document.getElementById("postId").value;
+    const price = document.getElementById("postPrice").value;
+    const loginUserId = document.getElementById("loginUserId").value;
+
+    if (!loginUserId) {
+        alert("로그인이 필요한 서비스입니다.");
         return;
     }
-    fetch('/api/payment/purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: postId, amount: postPrice })
+
+    // 서버로 구매 거래 요청 (PayController의 /payment/trade 호출)
+    fetch("/payment/trade", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            contentType: "POST",     // 거래 유형 (게시글)
+            contentId: postId,       // 게시글 번호
+            price: price             // 소모될 콩 개수
+        })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) document.getElementById('modalSuccess').classList.remove('hidden');
-        else alert("결제 실패: " + data.message);
+    .then(resp => resp.json())
+    .then(result => {
+        // 서비스에서 리턴한 결과값(int)이 0보다 크면 성공
+        if (result > 0) {
+            // 성공 시
+            document.getElementById("modalPurchase").classList.add("hidden");
+            document.getElementById("modalSuccess").classList.remove("hidden");
+        } else {
+            // 실패 시 
+            document.getElementById("modalPurchase").classList.add("hidden");
+            document.getElementById("modalNoBalance").classList.remove("hidden");
+        }
+    })
+    .catch(err => {
+        console.error("구매 처리 중 오류 발생:", err);
+        alert("구매 처리 중 서버 오류가 발생했습니다.");
     });
 }
 
