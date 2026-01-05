@@ -93,21 +93,32 @@ public class BlogServiceImpl implements BlogService {
 
     // 3. 내 블로그 목록 조회
     @Override
-    public Map<String, Object> getMyBlogList(String blogId, String type, int page, int size, String sort) {
+    public Map<String, Object> getMyBlogList(String blogId, String type, String query, String tag, int page, int size, String sort) {
         Map<String, Object> params = new HashMap<>();
         params.put("blogId", blogId);
         params.put("type", type);
+        params.put("query", query); 
+        params.put("tag", tag);     
         params.put("offset", page * size);
         params.put("limit", size);
         params.put("sort", sort);
-
+        
+        // [추가] 현재 로그인한 사람의 번호를 가져와서 넘겨줌 (스크랩 조회용)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            Member loginUser = memberRepository.findByMemberEmailAndMemberDelFl(auth.getName(), CommonEnums.Status.N).orElse(null);
+            if (loginUser != null) {
+                params.put("loginMemberNo", loginUser.getMemberNo()); // 쿼리에서 us.MEMBER_NO와 비교됨
+            }
+        }
+        
         List<BlogDTO> list = blogMapper.selectMyBlogList(params);
         int totalCount = blogMapper.countMyBlogList(params);
 
+        System.out.println(">>> [디버깅] 탭타입: " + type + ", 조회된 글 수: " + list.size() + ", 전체 수: " + totalCount);
+        
         Map<String, Object> result = new HashMap<>();
         result.put("content", list);
-        result.put("totalElements", totalCount);
-        result.put("totalPages", (int) Math.ceil((double) totalCount / size));
         result.put("last", (page + 1) * size >= totalCount);
 
         return result;
@@ -282,6 +293,37 @@ public class BlogServiceImpl implements BlogService {
         } else {
             return blogMapper.selectFollowingList(params);
         }
+    }
+    
+    // 게시글 스크랩
+    @Override
+    @Transactional
+    public boolean toggleBoardScrap(Long boardNo, Long memberNo) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("boardNo", boardNo);
+        params.put("memberNo", memberNo);
+
+        // 1. 이미 스크랩했는지 확인
+        int count = blogMapper.checkScrapStatus(params);
+
+        if (count > 0) {
+            // 2-1. 이미 있으면 삭제 (스크랩 취소)
+            blogMapper.deleteScrap(params);
+            return false;
+        } else {
+            // 2-2. 없으면 삽입 (스크랩 등록)
+            blogMapper.insertScrap(params);
+            return true;
+        }
+    }
+    
+    // 게시글 스크랩
+    @Override
+    public boolean isScraped(Long boardNo, Long memberNo) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("boardNo", boardNo);
+        params.put("memberNo", memberNo);
+        return blogMapper.checkScrapStatus(params) > 0;
     }
     
     // 게시글 좋아요
