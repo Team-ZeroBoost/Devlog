@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.devlog.project.board.blog.mapper.ReplyMapper;
 import com.devlog.project.pay.dto.PayDTO;
 import com.devlog.project.pay.mapper.PayMapper;
 import com.github.pagehelper.PageHelper;
@@ -24,6 +25,9 @@ public class PayServiceImpl implements PayService {
 	
 	@Autowired
 	private PayMapper paymapper;
+	
+	@Autowired
+	private ReplyMapper replyMapper;
 	
 
 
@@ -152,6 +156,7 @@ public class PayServiceImpl implements PayService {
 
 
 
+	// 은행 코드
 	@Override
 	public List<Map<String, Object>> selectBankList() {
 		return paymapper.selectBankList();
@@ -177,7 +182,49 @@ public class PayServiceImpl implements PayService {
 	    
 	    return new PageInfo<>(payList, 5); // 5는 하단에 보여줄 페이지 번호 개수
 	}
-	
-	
+
+
+
+	// 커피콩 거래
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int insertTrade(PayDTO trade) {
+	    
+	    // 1. 판매자 식별 (작성하신 코드와 동일)
+	    Long sellerNo = 0L;
+	    if ("POST".equals(trade.getContentType())) {
+	        sellerNo = replyMapper.selectBoardWriter(trade.getContentId());
+	    } else if ("SUBSCRIBE".equals(trade.getContentType())) {
+	        sellerNo = trade.getContentId();
+	    } else if ("CHATBOT".equals(trade.getContentType())) {
+	        sellerNo = 1L; 
+	    }
+	    
+	    if (sellerNo == null || sellerNo == 0L) throw new RuntimeException("판매자 정보를 찾을 수 없습니다.");
+	    trade.setSellerNo(sellerNo);
+
+	    // 2. 잔액 확인
+	    PayDTO myBeans = paymapper.selectMyBeans(trade.getBuyerNo());
+	    if (myBeans == null || myBeans.getBeansAmount() < trade.getPrice()) {
+	        throw new RuntimeException("커피콩 잔액이 부족합니다.");
+	    }
+
+	    // 구매자 차감
+	    PayDTO deduction = new PayDTO();
+	    deduction.setMemberNo(trade.getBuyerNo());
+	    deduction.setPrice(-trade.getPrice()); // 음수 처리
+	    if(paymapper.updateMemberBeans(deduction) == 0) throw new RuntimeException("차감 실패");
+
+	    // 판매자 지급 (본인 제외)
+	    if (!trade.getBuyerNo().equals(sellerNo)) {
+	        PayDTO addition = new PayDTO();
+	        addition.setMemberNo(sellerNo);
+	        addition.setPrice(trade.getPrice()); // 양수 처리
+	        if(paymapper.updateMemberBeans(addition) == 0) throw new RuntimeException("지급 실패");
+	    }
+
+	    //  내역 저장
+	    return paymapper.insertBeansTrade(trade);
+	}
 	
 }
