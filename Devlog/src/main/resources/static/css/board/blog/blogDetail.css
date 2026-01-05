@@ -107,6 +107,19 @@ body {
     color: #fff;
 }
 
+/* 팔로잉 중일 때의 버튼 스타일 */
+.btn-follow.active {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.btn-follow {
+    transition: all 0.2s ease;
+}
+
+
+
 /* 수정/삭제 버튼 영역 */
 .author-actions {
     display: flex;

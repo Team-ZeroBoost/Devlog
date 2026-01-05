@@ -48,6 +48,45 @@ function deletePost() {
     });
 }
 
+// 팔로우/언팔로우 토글 기능 추가
+function toggleFollow(btn) {
+    // 1. 로그인 여부 체크
+    if (!loginUserId) {
+        if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/member/login";
+        }
+        return;
+    }
+
+    // 2. HTML에서 작성자의 이메일 정보를 가져옴 (Thymeleaf로 렌더링된 href에서 추출)
+    const authorLink = document.querySelector('.author-link').getAttribute('href');
+    const targetEmail = authorLink.split('/').pop(); // /blog/{email} 형식에서 email만 추출
+
+    // 3. 서버에 팔로우 요청
+    fetch(`/api/blog/follow/${targetEmail}`, {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.isFollowed) {
+                // 팔로우 성공 시 상태 변경
+                btn.innerText = "팔로잉";
+                btn.classList.add('active');
+                alert("팔로우 되었습니다.");
+            } else {
+                // 언팔로우 성공 시 상태 변경
+                btn.innerText = "+ 팔로우";
+                btn.classList.remove('active');
+                alert("팔로우가 취소되었습니다.");
+            }
+        } else {
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    })
+    .catch(err => console.error("Follow Error:", err));
+}
+
 // === 댓글 기능 ===
 
 function loadComments() {
