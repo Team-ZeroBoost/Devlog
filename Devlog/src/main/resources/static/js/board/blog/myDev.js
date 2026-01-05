@@ -508,28 +508,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 최종 구매하기 버튼 클릭
   document.getElementById("btnFinalSubscribe").addEventListener("click", () => {
-    const balance = parseInt(
-      document.getElementById("myBeanBalance").innerText.replace(/,/g, "")
-    );
-    const price = parseInt(
-      document.getElementById("subDisplayPrice").innerText.replace(/,/g, "")
-    );
+    // 1. 화면에 표시된 잔액과 가격 가져오기
+    const balanceText = document
+      .getElementById("myBeanBalance")
+      .innerText.replace(/,/g, "");
+    const priceText = document
+      .getElementById("subDisplayPrice")
+      .innerText.replace(/,/g, "");
 
-    if (balance < price) {
+    const balance = parseInt(balanceText);
+    const finalPrice = parseInt(priceText); // 변수명 통일 (priceValue 대신 finalPrice)
+
+    // 2. 잔액 검증
+    if (balance < finalPrice) {
       if (confirm("커피콩이 부족합니다. 충전 페이지로 이동하시겠습니까?")) {
         location.href = "/coffeebeans";
       }
       return;
     }
 
-    // 구독
+    // 3. 구독 요청 전송
     if (confirm("정말로 구독하시겠습니까?")) {
       const subData = {
-        price: price,
-        buyerNo: loginMemberNo,
-        sellerNo: blogOwnerNo,
         contentType: "SUBSCRIBE",
+        contentId: blogOwnerNo, // Service 로직의 if문을 통과하기 위해 contentId 사용
+        price: finalPrice, // 위에서 선언한 finalPrice 사용
+        subscriberId: loginMemberNo,
       };
+
+      console.log("서버로 보내는 데이터:", subData);
 
       fetch("/payment/subscribe", {
         method: "POST",
@@ -541,9 +548,15 @@ document.addEventListener("DOMContentLoaded", () => {
           if (result > 0) {
             alert("구독이 완료되었습니다!");
             location.reload();
+          } else if (result === -2) {
+            alert("잔액이 부족합니다.");
           } else {
             alert("구독 처리 중 오류가 발생했습니다.");
           }
+        })
+        .catch((err) => {
+          console.error("구독 요청 에러:", err);
+          alert("서버 통신 중 오류가 발생했습니다.");
         });
     }
   });

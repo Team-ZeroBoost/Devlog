@@ -261,12 +261,18 @@ public class PayServiceImpl implements PayService {
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int insertSubscription(PayDTO trade) {
-		
-		
-		if (trade.getSellerNo() == null || trade.getSellerNo() == 0L) {
-	        // 만약 trade 객체에 contentId가 블로그 주인 번호라면?
-	        if (trade.getContentId() != null && trade.getContentId() != 0L) {
+	    
+	    // 1. 판매자 번호 체크 로직 보완
+	    // null 체크와 더불어 0인지 확인하는 방법을 더 확실하게 바꿉니다.
+	    if (trade.getSellerNo() == null || trade.getSellerNo() == 0) {
+	        
+	        // contentId도 체크 (Long 타입이므로 0과 비교)
+	        if (trade.getContentId() != null && trade.getContentId() != 0) {
 	            trade.setSellerNo(trade.getContentId());
+	            
+	        } else if (trade.getCreatorId() != 0) { // DTO에 있는 int creatorId 체크
+	            trade.setSellerNo((long)trade.getCreatorId());
+	            
 	        } else {
 	            throw new RuntimeException("지급 대상(판매자) 번호가 없습니다.");
 	        }
@@ -290,19 +296,29 @@ public class PayServiceImpl implements PayService {
 	    addition.setPrice(trade.getPrice());
 	    if(paymapper.updateMemberBeans(addition) == 0) throw new RuntimeException("지급 실패");
 
+	    
+	    
+	    trade.setBuyerNo(trade.getBuyerNo());
+	    trade.setSellerNo(trade.getSellerNo());
+	    trade.setContentType("SUBSCRIBE");
+	    paymapper.insertBeansTrade(trade);
+	    
 	    // 구독 전용 테이블 저장 
 	    int subResult = paymapper.insertSubscriptionRecord(trade);
 	    if(subResult == 0) throw new RuntimeException("구독 정보 기록 실패");
 
 	    // 내역 저장 
 	    // 구매자 내역
+	    trade.setMemberNo(trade.getBuyerNo());
 	    trade.setPayAmount(-trade.getPrice());
 	    paymapper.insertHistory(trade);
 
 	    // 판매자 내역
-	    addition.setPayAmount(trade.getPrice());
-	    paymapper.insertHistory(addition);
-
+	    PayDTO sellerHistory = new PayDTO(); 
+	    sellerHistory.setMemberNo(trade.getSellerNo()); // 판매자 번호
+	    sellerHistory.setPayAmount(trade.getPrice());    // 판매자는 지급 (+) - 마이너스 없는거 확인!
+	    sellerHistory.setTradeNo(trade.getTradeNo());
+	    paymapper.insertHistory(sellerHistory);
 	    return 1; // 성공
 	}
 	
