@@ -114,6 +114,11 @@ function openUserModal(type) {
     apiUrl = `/api/blog/${blogOwnerId}/subscribers`;
   }
 
+  // 캐시 방지를 위해 타임스탬프 쿼리 스트링 추가
+  // 브라우저는 URL이 다르면 새로운 요청으로 인식.
+  const timestamp = new Date().getTime();
+  apiUrl += `?t=${timestamp}`;
+
   modalTitle.innerText = titleText;
   modalUserList.innerHTML =
     '<li style="text-align:center; padding:20px;">로딩 중...</li>';
@@ -161,10 +166,15 @@ function renderUserList(users) {
 
     let btnHtml = "";
 
-    if (user.isFollowed) {
-      btnHtml = `<button class="modal-follow-btn active" onclick="toggleModalFollow(this, '${user.id}')" style="margin-left:auto;">팔로잉</button>`;
+    if (user.memberNo !== loginMemberNo) {
+        if (user.isFollowed) {
+          btnHtml = `<button class="modal-follow-btn active" onclick="toggleModalFollow(this, '${user.id}')" style="margin-left:auto;">팔로잉</button>`;
+        } else {
+          btnHtml = `<button class="modal-follow-btn" onclick="toggleModalFollow(this, '${user.id}')" style="margin-left:auto;">팔로우</button>`;
+        }
     } else {
-      btnHtml = `<button class="modal-follow-btn" onclick="toggleModalFollow(this, '${user.id}')" style="margin-left:auto;">팔로우</button>`;
+        // 본인인 경우 '나'라고 표시하거나 버튼 없애기
+        btnHtml = `<span style="margin-left:auto; font-size:12px; color:#999; font-weight:bold;">ME</span>`;
     }
 
     // 유저 아이템 HTML (클릭 시 해당 유저 블로그로 이동 기능 추가 가능)
