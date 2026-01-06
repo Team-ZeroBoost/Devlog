@@ -265,7 +265,7 @@ cafes.forEach((cafe) => {
 let stompClient = null;
 
 function connectOnlineStatus() {
-  const socket = new SockJS("/ws-chat");
+  const socket = new SockJS("/ws");
   stompClient = Stomp.over(socket);
 
   stompClient.connect(
@@ -274,7 +274,7 @@ function connectOnlineStatus() {
       console.log("활동 상태 모니터링 시작");
 
       // 서버가 유저 목록을 뿌려주는 채널(/topic/friends) 구독
-      stompClient.subscribe("/topic/friends", function (response) {
+      stompClient.subscribe("/user/queue/freinds", function (response) {
         const onlineUserList = JSON.parse(response.body); // 이름 리스트 ["소연", "철수"]
         updateFriendsUI(onlineUserList);
       });
