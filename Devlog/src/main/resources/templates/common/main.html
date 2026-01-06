@@ -18,10 +18,10 @@
   
   <!-- main -->
   <main class="main-container">
-    <!-- 오늘의 인기글 + 활동중인 친구들 -->
+    <!-- 인기글 + 활동중인 친구들 -->
     <section class="main-top">
       <div class="popular-posts">
-        <h2 class="section-title">오늘의 인기글</h2>
+        <h2 class="section-title">🔥 실시간 핫 게시글</h2>
         <div class="post-grid" id="postGrid">
           <!-- 여기에 스프링부트..로 목록 조회 해서 카드 여러 개를 넣음 -->
         </div>
@@ -108,7 +108,7 @@
           </div>
 
           <div class="news-thumb">
-            <img th:src="${news.imgPath != null ? news.imgPath : '/images/common/default-thumb.png'}"
+            <img th:src="${news.imgPath != null ? news.imgPath : '/images/logo.png'}"
                 alt="news thumbnail">
           </div>
         </div>

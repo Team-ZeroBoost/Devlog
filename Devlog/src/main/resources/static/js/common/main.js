@@ -15,13 +15,13 @@ function renderPopularPosts(posts) {
            style="cursor:pointer">
         <div class="post-img">
           <img src="${
-            post.thumbnail_url ?? "/images/common/default-thumb.png"
+            post.thumbnail_url ?? "/images/logo.png"
           }">
         </div>
         <div class="post-info">
           <div class="post-top">
             <div class="likes">
-              <img src="/images/common/heart.svg">
+              <img src="/images/common/like.png">
               <span>${post.like_count ?? 0}</span>
             </div>
             <span class="writer">Writer. ${
@@ -58,7 +58,7 @@ function renderLatestFeed(posts) {
            style="cursor:pointer">
         <div class="post-img">
           <img src="${
-            post.thumbnail_url ?? "/images/common/default-thumb.png"
+            post.thumbnail_url ?? "/images/logo.png"
           }">
         </div>
         <div class="post-info">
