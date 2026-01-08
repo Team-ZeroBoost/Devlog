@@ -48,6 +48,9 @@ public class BlogController {
 
 		Map<String, Object> result = blogService.getBlogList(pageable.getPageNumber(), pageable.getPageSize(), "id");
 		model.addAttribute("blogList", result.get("content"));
+		// 마지막 페이지 여부 넘기기 (희준 추가)
+		model.addAttribute("isLast", result.get("last"));
+		
 		return "board/blog/blogList";
 	}
 
@@ -531,6 +534,8 @@ public class BlogController {
 
 	    model.addAttribute("blogList", result.get("content"));
 	    model.addAttribute("keyword", keyword);
+	    // 마지막 페이지 여부 넘기기 (희준 추가)
+	    model.addAttribute("isLast", result.get("last"));
 
 	    return "board/blog/blogList"; // 기존 화면에서 로직만 조금 변경하면 된다..
 	}
