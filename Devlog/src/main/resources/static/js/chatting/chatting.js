@@ -2009,7 +2009,7 @@ function createOtherMessage(msg) {
     // 프로필 이미지
     const img = document.createElement('img');
     img.className = 'profile-img';
-    img.src = msg.profile_img ?? '/images/logo.png';
+    img.src = msg.profile_img ?? '/images/user.png';
     li.appendChild(img);
 
     const cardDiv = document.createElement('div');
