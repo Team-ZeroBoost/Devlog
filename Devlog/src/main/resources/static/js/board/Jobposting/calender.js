@@ -6,40 +6,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 1. 데이터 가공 (전처리)
   const events = rawData.map((job) => {
-    // [날짜 처리] applyStart를 우선하되, 없으면 applyEnd 사용
-    let dateRaw = job.applyStart || job.applyEnd;
-    let finalDate = "";
+    // 1. 날짜 데이터 정제 (하이픈 형식이든 점 형식이든 추출)
+    const getCleanDate = (str) => {
+      if (!str) return null;
+      const match = str.match(/\d{4}[\.\-]\d{2}[\.\-]\d{2}/);
+      return match ? match[0].replace(/\./g, "-") : null;
+    };
 
-    if (dateRaw && typeof dateRaw === "string") {
-      // 마침표(.)를 하이픈(-)으로 통일하고 공백 제거
-      finalDate = dateRaw.replace(/\./g, "-").trim();
+    const startDate = getCleanDate(job.applyStart);
+    const endDate = getCleanDate(job.applyEnd);
 
-      // "2026-01-07 채용시 마감" 처럼 뒤에 텍스트가 붙어있는 경우 날짜만 추출
-      if (finalDate.includes(" ")) {
-        finalDate = finalDate.split(" ")[0];
-      }
-    }
-
-    // [유효성 검사] YYYY-MM-DD 형식이 아니면 오늘 날짜로 방어 처리
-    const isDateValid = /^\d{4}-\d{2}-\d{2}$/.test(finalDate);
-    if (!isDateValid) {
-      finalDate = new Date().toISOString().slice(0, 10);
-    }
-
-    // [색상 기준 결정]
-    // 마감일에 '채용시'가 포함되면 분홍색(상시), 날짜가 명시되어 있으면 보라색(기간제)
-    const isAlwaysHiring = job.applyEnd && job.applyEnd.includes("채용시");
-    const eventClass = isAlwaysHiring ? "event-pink" : "event-purple";
+    // 2. 날짜 결정 우선순위:
+    // 시작일이 있으면 시작일로, 없으면 마감일로, 둘 다 없으면 오늘로.
+    let finalDate =
+      startDate || endDate || new Date().toISOString().slice(0, 10);
 
     return {
       title: job.postingTitle,
       start: finalDate,
-      className: eventClass,
       extendedProps: {
         jobId: job.postingNo,
         applyStart: job.applyStart,
         applyEnd: job.applyEnd,
       },
+      // 클래스 구분: 마감일 텍스트에 '채용시'가 들어있으면 핑크
+      className:
+        job.applyEnd && job.applyEnd.includes("채용시")
+          ? "event-pink"
+          : "event-purple",
     };
   });
 
