@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
     <link rel="stylesheet" th:href="@{/css/common/notification.css}" />
+    <link rel="stylesheet" th:href="@{/css/common/report.css}">
 
     <link rel="stylesheet" th:href="@{/css/board/blog/blogDetail.css}">
 </head>
@@ -52,6 +53,17 @@
                         </div>
 
                         <div class="stats">
+
+                            <!-- 신고 -->
+                            <span class="report-btn" id="btnReport"
+                                th:onclick="|openBlogReportModal(${post.memberNo}, ${post.boardNo})|">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>신고</span>
+                            </span>
+
+                            <div id="modal-root"></div>
+
+                            <!-- 스크랩 -->
                             <span class="scrap-btn" id="btnPostScrap" onclick="togglePostScrap()"
                                 th:classappend="${isScraped} ? 'active' : ''">
                                 <i th:class="${isScraped} ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"
@@ -59,6 +71,7 @@
                                 <span>스크랩</span>
                             </span>
 
+                            <!-- 좋아요 -->
                             <span class="like-btn" id="btnPostLike" onclick="togglePostLike()"
                                 th:classappend="${isLiked} ? 'active'"> <i
                                     th:class="${isLiked} ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
@@ -67,6 +80,7 @@
                                 <span id="postLikeCount" th:text="${post.likeCount}">0</span>
                             </span>
 
+                            <!-- 댓글 수 -->
                             <span><i class="fa-regular fa-comment-dots"></i> <span id="commentCount"
                                     th:text="${post.commentCount}">0</span></span>
                             <span><i class="fa-regular fa-eye"></i> <span th:text="${post.boardCount}">0</span></span>
@@ -170,6 +184,7 @@
 
     <script th:src="@{/js/common/header.js}"></script>
     <script th:src="@{/js/notification/noti.js}"></script>
+    <script th:src="@{/js/common/report.js}"></script>
 
     <script th:src="@{/js/board/blog/blogDetail.js}"></script>
 </body>
