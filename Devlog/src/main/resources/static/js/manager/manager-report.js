@@ -66,7 +66,11 @@ function openModal(row) {
     moveButton.textContent = "신고된 메시지 확인";
     modalMessageContent.textContent =
       messageContent || "신고된 메시지 내용이 없습니다.";
+
     document.getElementById("deleteMessageBtn").style.display = "inline-block";
+
+    document.getElementById("deleteMessageBtn").style.display = "inline-block";
+
   }
 
   modal.style.display = "flex";
